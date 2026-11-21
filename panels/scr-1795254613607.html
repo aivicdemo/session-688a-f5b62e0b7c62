@@ -1,0 +1,999 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ほくしん受注ナビ</title>
+  <style>
+:root {
+  --primary: #2c3e50;
+  --primary-hover: #1a252f;
+  --accent-warning: #d97706;
+  --accent-warning-hover: #b45309;
+  --accent-success: #059669;
+  --accent-error: #dc2626;
+  --bg-main: #0f1419;
+  --bg-card: #1a202c;
+  --bg-sidebar: #151d28;
+  --border: #2d3748;
+  --text: #e8eef5;
+  --text-muted: #9ca3af;
+  --top-bar-bg: #0d1117;
+  --top-bar-border: #2d3748;
+  --top-bar-text: #f0f4f8;
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Menlo", "Monaco", "Courier New", monospace;
+  --radius-card: 6px;
+  --radius-control: 4px;
+  --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --border-width: 1px;
+  --control-height: 48px;
+  --space-unit: 8px;
+  --motion-duration: 200ms;
+  --surface-texture: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.02) 50%, transparent 100%), repeating-linear-gradient(0deg, transparent 0px, rgba(255, 255, 255, 0.01) 1px, transparent 2px, transparent 4px);
+  --surface-texture-size: 100% 100%;
+  --surface-texture-position: 0 0;
+  --status-stopped: #d97706;
+  --status-stopped-bg: rgba(217, 119, 6, 0.15);
+  --status-stopped-border: #b45309;
+  --status-active: #10b981;
+  --status-active-bg: rgba(16, 185, 129, 0.12);
+  --status-error: #ef4444;
+  --status-error-bg: rgba(239, 68, 68, 0.12);
+  --status-completed: #6b7280;
+  --status-completed-bg: rgba(107, 114, 128, 0.1);
+  --line-height-relaxed: 1.6;
+  --letter-spacing-relaxed: 0.3px;
+}
+
+@supports (backdrop-filter: blur(1px)) {
+  :root {
+    --card-backdrop: rgba(26, 32, 44, 0.6);
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--bg-main);
+  color: var(--text);
+  line-height: var(--line-height-relaxed);
+  letter-spacing: var(--letter-spacing-relaxed);
+}
+
+[data-aivic-shell-pattern] {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.shell-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  background-color: var(--top-bar-bg);
+  border-bottom: var(--border-width) solid var(--top-bar-border);
+  padding: 0 calc(var(--space-unit) * 2);
+  flex-shrink: 0;
+  z-index: 100;
+}
+
+.shell-logo {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--space-unit) * 1.5);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--top-bar-text);
+  text-decoration: none;
+}
+
+.shell-logo-icon {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, var(--primary), var(--accent-warning));
+  border-radius: var(--radius-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: white;
+}
+
+.shell-logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.shell-logo-brand {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.shell-logo-system {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.shell-user-area {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--space-unit) * 1.5);
+}
+
+.shell-user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  flex-shrink: 0;
+}
+
+.shell-user-name {
+  font-size: 13px;
+  color: var(--top-bar-text);
+  min-width: 60px;
+}
+
+.shell-logout {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--motion-duration);
+}
+
+.shell-logout:hover {
+  color: var(--top-bar-text);
+}
+
+.shell-container {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.shell-sidebar {
+  width: 240px;
+  background-color: var(--bg-sidebar);
+  border-right: var(--border-width) solid var(--border);
+  overflow-y: auto;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.shell-nav {
+  display: flex;
+  flex-direction: column;
+  padding: calc(var(--space-unit) * 2) 0;
+  gap: calc(var(--space-unit) * 0.5);
+}
+
+.shell-nav-item {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--space-unit) * 1.5);
+  padding: calc(var(--space-unit) * 1.5) calc(var(--space-unit) * 2);
+  font-size: 13px;
+  color: var(--text-muted);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--motion-duration);
+  border-left: 3px solid transparent;
+  position: relative;
+}
+
+.shell-nav-item:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+}
+
+.shell-nav-item.aivic-active {
+  background-color: rgba(44, 62, 80, 0.3);
+  color: var(--accent-warning);
+  border-left-color: var(--accent-warning);
+  font-weight: 500;
+}
+
+.shell-nav-icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.shell-content-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.content-area {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: var(--bg-main);
+  background-image: var(--surface-texture);
+  background-size: var(--surface-texture-size);
+  background-position: var(--surface-texture-position);
+}
+
+[data-aivic-panel] {
+  display: block;
+}
+
+.shell-footer {
+  height: 40px;
+  background-color: var(--bg-sidebar);
+  border-top: var(--border-width) solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .shell-sidebar {
+    width: 200px;
+  }
+
+  .shell-nav-item {
+    padding: calc(var(--space-unit) * 1.25) calc(var(--space-unit) * 1.5);
+    font-size: 12px;
+  }
+
+  .shell-logo-text {
+    display: none;
+  }
+
+  .shell-logo-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .shell-header {
+    height: 52px;
+    padding: 0 calc(var(--space-unit) * 1.5);
+  }
+
+  .shell-container {
+    flex-direction: column;
+  }
+
+  .shell-sidebar {
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: var(--border-width) solid var(--border);
+    overflow-y: visible;
+    flex-direction: row;
+  }
+
+  .shell-nav {
+    flex-direction: row;
+    padding: calc(var(--space-unit) * 1) 0;
+    gap: 0;
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .shell-nav-item {
+    padding: calc(var(--space-unit) * 1) calc(var(--space-unit) * 1.5);
+    font-size: 11px;
+    border-left: none;
+    border-bottom: 3px solid transparent;
+    flex-shrink: 0;
+  }
+
+  .shell-nav-item.aivic-active {
+    border-left: none;
+    border-bottom-color: var(--accent-warning);
+  }
+
+  .shell-user-name {
+    display: none;
+  }
+
+  .shell-logout {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 360px) {
+  .shell-logo-icon {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+  }
+
+  .shell-user-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+
+  .shell-user-area {
+    gap: calc(var(--space-unit) * 1);
+  }
+
+  .shell-header {
+    padding: 0 calc(var(--space-unit) * 1);
+  }
+}
+  </style>
+  
+<script>
+window.AIVIC_API_URL = "https://jqykrkgdvngp7qvmavufg5tohq0xwdzb.lambda-url.us-east-1.on.aws/";
+window.AIVIC_APP_ID = "session-688aa533-e156-4d36-9e99-e01b8c19ea24";
+window.AIVIC_SYSTEM_NAME = "受注管理業務システム";
+window.AIVIC_TABLES = [{"tableName":"受注案件","purpose":"受注案件の基本情報を管理し、営業から納品までの案件ライフサイクルを追跡するためのマスタテーブル","columns":[{"name":"案件ID","type":"uuid","required":true,"description":"受注案件を一意に識別するプライマリキー"},{"name":"案件番号","type":"varchar(100)","required":true,"description":"ユーザーが参照する案件の一意な番号"},{"name":"顧客ID","type":"uuid","required":true,"description":"顧客マスタへの外部キー参照"},{"name":"案件名","type":"varchar(100)","required":true,"description":"受注案件の名称"},{"name":"案件説明","type":"text","required":false,"description":"受注案件の詳細説明"},{"name":"受注日","type":"timestamp","required":true,"description":"受注が確定した日付"},{"name":"納期","type":"timestamp","required":true,"description":"納品予定日"},{"name":"受注金額","type":"integer","required":true,"description":"受注案件の総金額"},{"name":"ステータス","type":"varchar(100)","required":true,"description":"案件の進捗状態(受注、進行中、完了、キャンセル等)"},{"name":"担当者ID","type":"uuid","required":true,"description":"案件を担当する従業員のID"},{"name":"作成日時","type":"timestamp","required":true,"description":"レコード作成日時"},{"name":"作成者ID","type":"uuid","required":true,"description":"レコード作成者のユーザーID"},{"name":"更新日時","type":"timestamp","required":true,"description":"レコード最終更新日時"},{"name":"更新者ID","type":"uuid","required":true,"description":"レコード最終更新者のユーザーID"}]},{"tableName":"案件ステータスマスタ","purpose":"受注案件の進捗状況を管理するためのマスタテーブル。案件が取りうるステータス値と遷移ルールを定義し、業務プロセスの標準化を実現する。","columns":[{"name":"ステータスID","type":"uuid","required":true,"description":"案件ステータスマスタの一意識別子"},{"name":"ステータスコード","type":"varchar(100)","required":true,"description":"ステータスを識別するコード値。受注案件テーブルから参照される"},{"name":"ステータス名","type":"varchar(100)","required":true,"description":"ステータスの日本語表示名。営業担当者や管理者が画面で確認する"},{"name":"説明","type":"text","required":false,"description":"ステータスの詳細説明。業務プロセスの定義や注意事項を記載"},{"name":"表示順序","type":"integer","required":true,"description":"UI上でのステータス表示順序。案件進捗の流れを反映"},{"name":"有効フラグ","type":"boolean","required":true,"description":"ステータスが現在使用可能かどうか。無効化により過去データは保持しつつ新規使用を防止"},{"name":"作成日時","type":"timestamp","required":true,"description":"マスタレコード作成日時"},{"name":"更新日時","type":"timestamp","required":true,"description":"マスタレコード最終更新日時"},{"name":"作成者","type":"varchar(100)","required":true,"description":"マスタレコード作成者のユーザーID"},{"name":"更新者","type":"varchar(100)","required":true,"description":"マスタレコード最終更新者のユーザーID"}]},{"tableName":"優先度マスタ","purpose":"受注案件の優先度を管理するマスタテーブル。優先度レベルと対応する説明を保持し、受注案件の優先度設定に使用される。","columns":[{"name":"優先度ID","type":"uuid","required":true,"description":"優先度マスタの一意識別子。主キー。"},{"name":"優先度レベル","type":"integer","required":true,"description":"優先度の数値レベル。1が最高優先度、数値が大きいほど優先度が低い。"},{"name":"優先度名","type":"varchar(100)","required":true,"description":"優先度の表示名。例：緊急、高、中、低。"},{"name":"説明","type":"text","required":false,"description":"優先度の詳細説明。業務ルールや適用基準を記載。"},{"name":"有効フラグ","type":"boolean","required":true,"description":"優先度が有効かどうかを示すフラグ。trueで有効、falseで無効。"},{"name":"作成日時","type":"timestamp","required":true,"description":"優先度マスタレコードの作成日時。"},{"name":"更新日時","type":"timestamp","required":true,"description":"優先度マスタレコードの最終更新日時。"},{"name":"作成者","type":"varchar(100)","required":true,"description":"優先度マスタレコードを作成したユーザーID。"},{"name":"更新者","type":"varchar(100)","required":true,"description":"優先度マスタレコードを最後に更新したユーザーID。"}]},{"tableName":"入荷予定","purpose":"受注案件に基づいた商品の入荷予定を管理し、入荷日時、数量、ステータスを追跡するトランザクションテーブル","columns":[{"name":"入荷予定ID","type":"uuid","required":true,"description":"入荷予定の一意識別子"},{"name":"受注案件ID","type":"uuid","required":true,"description":"関連する受注案件への外部キー"},{"name":"予定入荷日","type":"timestamp","required":true,"description":"商品の予定入荷日時"},{"name":"予定数量","type":"integer","required":true,"description":"予定されている入荷数量"},{"name":"実績入荷日","type":"timestamp","required":false,"description":"実際の入荷日時"},{"name":"実績数量","type":"integer","required":false,"description":"実際に入荷した数量"},{"name":"ステータスコード","type":"varchar(100)","required":true,"description":"入荷予定のステータス（案件ステータスマスタを参照）"},{"name":"優先度コード","type":"varchar(100)","required":false,"description":"入荷の優先度（優先度マスタを参照）"},{"name":"備考","type":"text","required":false,"description":"入荷予定に関する備考"},{"name":"作成日時","type":"timestamp","required":true,"description":"レコード作成日時"},{"name":"作成者","type":"varchar(100)","required":true,"description":"レコード作成者"},{"name":"更新日時","type":"timestamp","required":true,"description":"レコード最終更新日時"},{"name":"更新者","type":"varchar(100)","required":true,"description":"レコード最終更新者"}]},{"tableName":"商品","purpose":"受注管理システムにおける商品マスタ。商品の基本情報、在庫状況、価格、入荷予定との連携を管理し、受注案件で参照される。","columns":[{"name":"商品ID","type":"uuid","required":true,"description":"商品を一意に識別するプライマリキー"},{"name":"商品コード","type":"varchar(100)","required":true,"description":"商品の一意なコード。受注案件や入荷予定で検索・フィルタリングに使用"},{"name":"商品名","type":"varchar(100)","required":true,"description":"商品の名称。受注案件や帳票で表示される"},{"name":"説明","type":"text","required":false,"description":"商品の詳細説明"},{"name":"単価","type":"integer","required":true,"description":"商品の単価。受注案件の金額計算に使用"},{"name":"在庫数","type":"integer","required":true,"description":"現在の在庫数。受注案件の納期判定やフィルタリングに使用"},{"name":"最小在庫数","type":"integer","required":false,"description":"在庫警告の閾値"},{"name":"ステータス","type":"varchar(100)","required":true,"description":"商品の状態。販売中/廃止予定/廃止等。受注案件でのフィルタリングに使用"},{"name":"作成日時","type":"timestamp","required":true,"description":"商品マスタの作成日時"},{"name":"更新日時","type":"timestamp","required":true,"description":"商品マスタの最終更新日時"},{"name":"作成者","type":"varchar(100)","required":false,"description":"商品マスタを作成したユーザー"},{"name":"更新者","type":"varchar(100)","required":false,"description":"商品マスタを最後に更新したユーザー"}]},{"tableName":"案件商品紐付け","purpose":"受注案件と商品の紐付け情報を管理し、案件に含まれる商品の構成と数量、入荷予定を追跡するための中間テーブル","columns":[{"name":"案件商品紐付けID","type":"uuid","required":true,"description":"案件商品紐付けの一意識別子"},{"name":"受注案件ID","type":"uuid","required":true,"description":"受注案件テーブルへの外部キー"},{"name":"商品ID","type":"uuid","required":true,"description":"商品テーブルへの外部キー"},{"name":"数量","type":"integer","required":true,"description":"この案件に含まれる商品の数量"},{"name":"入荷予定ID","type":"uuid","required":false,"description":"入荷予定テーブルへの外部キー、商品の入荷予定を紐付ける場合に使用"},{"name":"備考","type":"text","required":false,"description":"この紐付けに関する備考や特記事項"},{"name":"作成日時","type":"timestamp","required":true,"description":"レコード作成日時"},{"name":"更新日時","type":"timestamp","required":true,"description":"レコード最終更新日時"},{"name":"作成者","type":"varchar(100)","required":false,"description":"レコード作成者のユーザーID"},{"name":"更新者","type":"varchar(100)","required":false,"description":"レコード最終更新者のユーザーID"}]},{"tableName":"納期回答期限管理","purpose":"受注案件ごとの納期回答期限を管理し、回答期限の追跡と期限超過の監視を行うテーブル","columns":[{"name":"納期回答期限管理ID","type":"uuid","required":true,"description":"納期回答期限管理レコードの一意識別子"},{"name":"受注案件ID","type":"uuid","required":true,"description":"受注案件テーブルへの外部キー参照"},{"name":"回答期限日時","type":"timestamp","required":true,"description":"顧客に対して納期を回答する必要がある期限日時"},{"name":"回答状況","type":"varchar(100)","required":true,"description":"回答状況の区分値（未回答、回答済み、期限超過等）"},{"name":"実回答日時","type":"timestamp","required":false,"description":"実際に納期回答を行った日時"},{"name":"回答内容","type":"text","required":false,"description":"顧客に回答した納期内容の詳細"},{"name":"期限超過フラグ","type":"boolean","required":true,"description":"回答期限を超過したかどうかを示すフラグ"},{"name":"作成日時","type":"timestamp","required":true,"description":"レコード作成日時"},{"name":"作成者","type":"varchar(100)","required":true,"description":"レコード作成者のユーザーID"},{"name":"更新日時","type":"timestamp","required":true,"description":"レコード最終更新日時"},{"name":"更新者","type":"varchar(100)","required":true,"description":"レコード最終更新者のユーザーID"}]},{"tableName":"見積提出履歴","purpose":"受注案件に対する見積書の提出履歴を管理し、提出日時、提出者、見積内容の変更履歴を追跡するテーブル","columns":[{"name":"見積提出履歴ID","type":"uuid","required":true,"description":"見積提出履歴の一意識別子"},{"name":"受注案件ID","type":"uuid","required":true,"description":"受注案件テーブルへの外部キー"},{"name":"見積提出番号","type":"varchar(100)","required":true,"description":"見積書の提出番号（案件内での連番）"},{"name":"見積金額","type":"integer","required":true,"description":"提出時点での見積総金額"},{"name":"提出日時","type":"timestamp","required":true,"description":"見積書を提出した日時"},{"name":"提出者","type":"varchar(100)","required":true,"description":"見積書を提出したユーザー名またはID"},{"name":"見積有効期限","type":"timestamp","required":false,"description":"見積書の有効期限"},{"name":"備考","type":"text","required":false,"description":"見積提出時の備考やコメント"},{"name":"作成日時","type":"timestamp","required":true,"description":"レコード作成日時"},{"name":"更新日時","type":"timestamp","required":true,"description":"レコード最終更新日時"}]},{"tableName":"手配期限管理","purpose":"受注案件に紐付く商品の手配期限を管理し、納期達成のための調達スケジュール管理を行うテーブル","columns":[{"name":"手配期限管理ID","type":"uuid","required":true,"description":"手配期限管理レコードの一意識別子"},{"name":"案件商品紐付けID","type":"uuid","required":true,"description":"案件商品紐付けテーブルへの外部キー、どの案件のどの商品かを特定"},{"name":"受注案件ID","type":"uuid","required":true,"description":"受注案件テーブルへの外部キー、案件全体の参照用"},{"name":"商品ID","type":"uuid","required":true,"description":"商品テーブルへの外部キー、商品情報の参照用"},{"name":"手配期限日","type":"timestamp","required":true,"description":"この商品を手配する必要がある期限日時"},{"name":"手配数量","type":"integer","required":true,"description":"手配する商品の数量"},{"name":"手配ステータス","type":"varchar(100)","required":true,"description":"手配状況を示すステータス値（未手配、手配済、納入完了等）"},{"name":"実手配日","type":"timestamp","required":false,"description":"実際に手配が完了した日時"},{"name":"仕入先ID","type":"uuid","required":false,"description":"手配先の仕入先を特定するID"},{"name":"備考","type":"text","required":false,"description":"手配に関する特記事項や注記"},{"name":"作成日時","type":"timestamp","required":true,"description":"レコード作成日時"},{"name":"更新日時","type":"timestamp","required":true,"description":"レコード最終更新日時"},{"name":"作成者","type":"varchar(100)","required":true,"description":"レコード作成者のユーザーID"},{"name":"更新者","type":"varchar(100)","required":true,"description":"レコード最終更新者のユーザーID"}]},{"tableName":"仕入先納期遅延報告","purpose":"仕入先からの納期遅延を報告・管理し、受注案件への影響を追跡するためのトランザクションテーブル","columns":[{"name":"遅延報告ID","type":"uuid","required":true,"description":"遅延報告の一意識別子"},{"name":"受注案件ID","type":"uuid","required":true,"description":"関連する受注案件への外部キー"},{"name":"案件商品紐付けID","type":"uuid","required":true,"description":"遅延対象の商品紐付けへの外部キー"},{"name":"仕入先ID","type":"uuid","required":true,"description":"遅延を報告した仕入先への外部キー"},{"name":"商品ID","type":"uuid","required":true,"description":"遅延対象の商品への外部キー"},{"name":"元納期","type":"timestamp","required":true,"description":"当初の約束納期"},{"name":"新納期","type":"timestamp","required":true,"description":"遅延報告による新しい納期"},{"name":"遅延日数","type":"integer","required":true,"description":"遅延日数（日単位）"},{"name":"遅延理由","type":"text","required":true,"description":"遅延の理由説明"},{"name":"報告日時","type":"timestamp","required":true,"description":"遅延報告が行われた日時"},{"name":"対応状況","type":"varchar(100)","required":true,"description":"対応状況（未対応、確認中、対応済み等）"},{"name":"対応内容","type":"text","required":false,"description":"遅延に対する対応内容の詳細"},{"name":"作成日時","type":"timestamp","required":true,"description":"レコード作成日時"},{"name":"更新日時","type":"timestamp","required":true,"description":"レコード最終更新日時"},{"name":"作成者","type":"varchar(100)","required":true,"description":"レコード作成者のユーザーID"},{"name":"更新者","type":"varchar(100)","required":true,"description":"レコード最終更新者のユーザーID"}]},{"tableName":"顧客通知履歴","purpose":"顧客への通知内容と送信状況を記録し、通知の履歴管理と再送信判定を支援する","columns":[{"name":"顧客通知履歴ID","type":"uuid","required":true,"description":"顧客通知履歴の一意識別子"},{"name":"受注案件ID","type":"uuid","required":true,"description":"受注案件テーブルへの外部キー"},{"name":"通知種別","type":"varchar(100)","required":true,"description":"通知の種類（納期回答依頼、入荷予定通知、遅延報告等）"},{"name":"通知内容","type":"text","required":true,"description":"顧客に送信した通知の本文内容"},{"name":"送信先メールアドレス","type":"varchar(100)","required":true,"description":"通知を送信した顧客のメールアドレス"},{"name":"送信日時","type":"timestamp","required":true,"description":"通知を送信した日時"},{"name":"送信ステータス","type":"varchar(100)","required":true,"description":"送信状況（成功、失敗、再送待機等）"},{"name":"再送回数","type":"integer","required":false,"description":"失敗時の再送試行回数"},{"name":"開封フラグ","type":"boolean","required":false,"description":"顧客が通知を開封したかどうか"},{"name":"作成日時","type":"timestamp","required":true,"description":"通知履歴レコードの作成日時"},{"name":"更新日時","type":"timestamp","required":true,"description":"通知履歴レコードの最終更新日時"},{"name":"作成者","type":"varchar(100)","required":true,"description":"通知を作成したユーザーまたはシステム"}]},{"tableName":"ユーザー","purpose":"受注管理システムのユーザー情報を管理し、ログイン認証、権限管理、監査証跡を実現するマスタテーブル","columns":[{"name":"ユーザーID","type":"uuid","required":true,"description":"ユーザーの一意識別子"},{"name":"ユーザー名","type":"varchar(100)","required":true,"description":"ログイン時に使用するユーザー名"},{"name":"メールアドレス","type":"varchar(100)","required":true,"description":"ユーザーの連絡先メールアドレス"},{"name":"パスワードハッシュ","type":"varchar(100)","required":true,"description":"ハッシュ化されたパスワード"},{"name":"氏名","type":"varchar(100)","required":true,"description":"ユーザーの表示名"},{"name":"部門","type":"varchar(100)","required":false,"description":"ユーザーが属する部門"},{"name":"役割","type":"varchar(100)","required":true,"description":"ユーザーの権限レベル（営業、仕入、管理者等）"},{"name":"ステータス","type":"varchar(100)","required":true,"description":"ユーザーの状態（有効、無効、休止等）"},{"name":"最終ログイン日時","type":"timestamp","required":false,"description":"ユーザーが最後にログインした日時"},{"name":"作成日時","type":"timestamp","required":true,"description":"ユーザーレコード作成日時"},{"name":"更新日時","type":"timestamp","required":true,"description":"ユーザーレコード最終更新日時"},{"name":"作成者","type":"varchar(100)","required":true,"description":"ユーザーレコードを作成したユーザーID"},{"name":"更新者","type":"varchar(100)","required":true,"description":"ユーザーレコードを最後に更新したユーザーID"}]},{"tableName":"ユーザー権限","purpose":"受注管理システムにおけるユーザーの機能アクセス権限と操作権限を管理し、ロールベースのアクセス制御を実現する","columns":[{"name":"権限ID","type":"uuid","required":true,"description":"ユーザー権限レコードの一意識別子"},{"name":"ユーザーID","type":"uuid","required":true,"description":"権限が付与されるユーザーの識別子、ユーザーテーブルへの外部キー"},{"name":"権限コード","type":"varchar(100)","required":true,"description":"権限の種類を示すコード（例：受注登録、案件編集、見積承認、納期回答、仕入先管理等）"},{"name":"権限名","type":"varchar(100)","required":true,"description":"権限の日本語表示名"},{"name":"説明","type":"text","required":false,"description":"権限の詳細説明"},{"name":"有効フラグ","type":"boolean","required":true,"description":"権限が有効かどうかを示すフラグ"},{"name":"作成日時","type":"timestamp","required":true,"description":"権限レコードの作成日時"},{"name":"更新日時","type":"timestamp","required":true,"description":"権限レコードの最終更新日時"},{"name":"作成者","type":"uuid","required":true,"description":"権限レコードを作成したユーザーの識別子"},{"name":"更新者","type":"uuid","required":false,"description":"権限レコードを最後に更新したユーザーの識別子"}]},{"tableName":"操作ログ","purpose":"受注管理業務システムにおけるユーザーの全操作を記録し、監査証跡、セキュリティ監視、業務分析に利用する","columns":[{"name":"操作ログID","type":"uuid","required":true,"description":"操作ログの一意識別子"},{"name":"ユーザーID","type":"uuid","required":true,"description":"操作を実行したユーザーの識別子、ユーザーテーブルへの外部キー"},{"name":"操作種別","type":"varchar(100)","required":true,"description":"実行された操作の種類（作成、更新、削除、参照、承認等）"},{"name":"対象テーブル名","type":"varchar(100)","required":true,"description":"操作の対象となったテーブル名"},{"name":"対象レコードID","type":"uuid","required":false,"description":"操作の対象となったレコードの識別子"},{"name":"操作内容","type":"text","required":false,"description":"操作の詳細内容、変更前後の値等"},{"name":"操作結果","type":"varchar(100)","required":true,"description":"操作の結果（成功、失敗、エラー等）"},{"name":"エラーメッセージ","type":"text","required":false,"description":"操作失敗時のエラーメッセージ"},{"name":"IPアドレス","type":"varchar(100)","required":false,"description":"操作を実行したクライアントのIPアドレス"},{"name":"セッションID","type":"varchar(100)","required":false,"description":"操作時のセッション識別子"},{"name":"操作日時","type":"timestamp","required":true,"description":"操作が実行された日時"}]}];
+window.AIVIC_PRESET_SEED = {"受注案件":[{"案件ID":"rec-00847","案件番号":"PO-2026-11-0847","顧客ID":"cust-00156","案件名":"11月定期発注 機械部品セット","案件説明":"大口顧客による毎月定期発注。旋盤用チャック部品、ベアリング、潤滑油等の標準セット。","受注日":"2026-11-19","納期":"2026-12-05","受注金額":2850000,"ステータス":"与信確認待ち","担当者ID":"emp-00003","作成日時":"2026-11-19 10:15:00","作成者ID":"user-00012","更新日時":"2026-11-21 09:45:00","更新者ID":"user-00012"},{"案件ID":"rec-00001","案件番号":"ORD-2026-11-0001","顧客ID":"cust-00156","案件名":"精密ボールベアリング セット注文","案件説明":"新規取引先・山田精密工業からの初回注文。6307型ボールベアリング100個、グリース1L×5缶。前金確認待ち中。","受注日":"2026-11-19T10:30:00","納期":"2026-12-05T17:00:00","受注金額":385000,"ステータス":"新規取引先前金待ち","担当者ID":"emp-00001","作成日時":"2026-11-19T10:45:00","作成者ID":"user-00008","更新日時":"2026-11-21T14:20:00","更新者ID":"user-00008"},{"案件ID":"rec-00002","案件番号":"REC-2026-11-0002","顧客ID":"cust-00847","案件名":"ベアリング・ボルト・ワッシャー セット納入","案件説明":"在庫品のみ構成。ベアリング12個、ボルト100本、ワッシャー150枚。工場メンテナンス用。","受注日":"2026-11-14T09:30:00","納期":"2026-11-20T17:00:00","受注金額":187500,"ステータス":"出荷完了","担当者ID":"emp-00002","作成日時":"2026-11-14T10:15:00","作成者ID":"user-00012","更新日時":"2026-11-20T16:45:00","更新者ID":"user-00015"},{"案件ID":"rec-00003","案件番号":"REC-2026-11-0003","顧客ID":"cust-00284","案件名":"NC旋盤用ハイス刃物セット 100本","案件説明":"仕入先納期遅延により、お客様への納期回答が遅れている状態。仕入先からの遅延通知を待機中。","受注日":"2026-11-14T09:30:00","納期":"2026-11-28T17:00:00","受注金額":385000,"ステータス":"納期遅延通知待ち","担当者ID":"emp-00004","作成日時":"2026-11-14T10:15:00","作成者ID":"user-00008","更新日時":"2026-11-20T14:45:00","更新者ID":"user-00008"},{"案件ID":"rec-00004","案件番号":"RO-2026-11-0004","顧客ID":"cust-00156","案件名":"NC旋盤用チャック部品一式","案件説明":"ジョウ部品3種類、内2種は在庫あり、ロックリング1種は仕入先手配中。納期確認済み。","受注日":"2026-11-19T10:30:00Z","納期":"2026-12-05T23:59:59Z","受注金額":385000,"ステータス":"納期回答済み","担当者ID":"emp-00005","作成日時":"2026-11-19T11:15:00Z","作成者ID":"user-00008","更新日時":"2026-11-21T09:45:00Z","更新者ID":"user-00008"},{"案件ID":"rec-00005","案件番号":"ORD-2026-11-0005","顧客ID":"cust-00156","案件名":"精密ボールベアリング 1000個 納期短縮対応","案件説明":"顧客から納期短縮の強い要望があり、標準納期より10日間の前倒し対応を求められている。値引き率15%での承認待ち中。","受注日":"2026-11-21T00:00:00Z","納期":"2026-12-05T00:00:00Z","受注金額":1850000,"ステータス":"値引き承認待ち","担当者ID":"emp-00006","作成日時":"2026-11-21T09:15:00Z","作成者ID":"user-00008","更新日時":"2026-11-21T14:30:00Z","更新者ID":"user-00008"},{"案件ID":"rec-00006","案件番号":"RFQ-2026-11-0006","顧客ID":"cust-00156","案件名":"プレス機用油圧シリンダ 50本 + 制御弁セット","案件説明":"既存プレス機の老朽化部品交換。油圧シリンダ50本と制御弁セットの見積依頼。高額案件のため課長確認待ち。","受注日":null,"納期":null,"受注金額":2850000,"ステータス":"高額見積確認待ち","担当者ID":"emp-00007","作成日時":"2026-11-21T09:15:00","作成者ID":"user-00008","更新日時":"2026-11-21T10:42:00","更新者ID":"user-00008"},{"案件ID":"rec-00007","案件番号":"RO-2026-11-0007","顧客ID":"cust-00156","案件名":"NC旋盤用チャック部品セット","案件説明":"仕入先への手配完了、納期回答を待機中。顧客納期は12月10日予定。","受注日":"2026-11-18T09:30:00","納期":"2026-12-10T17:00:00","受注金額":385000,"ステータス":"納期回答待ち","担当者ID":"emp-00008","作成日時":"2026-11-18T10:15:00","作成者ID":"user-00007","更新日時":"2026-11-21T14:45:00","更新者ID":"user-00007"},{"案件ID":"rec-00008","案件番号":"PJ-2026-11-0008","顧客ID":"cust-00284","案件名":"鋳造用砂型製造装置用部品セット","案件説明":"高温炉用耐火レンガ、冷却用配管部品、制御盤用電気部品の納入","受注日":"2026-10-18T09:30:00","納期":"2026-11-15T17:00:00","受注金額":2850000,"ステータス":"受領書回収済み","担当者ID":"emp-00009","作成日時":"2026-10-18T10:15:00","作成者ID":"user-00008","更新日時":"2026-11-21T14:45:00","更新者ID":"user-00008"},{"案件ID":"rec-00009","案件番号":"ORD-2026-11-0009","顧客ID":"cust-00156","案件名":"NC旋盤用チャック部品セット","案件説明":"顧客からキャンセル申し出あり。手配済みで返品検討中。仕入先への返却手続き進行中。","受注日":"2026-11-14","納期":"2026-11-28","受注金額":385000,"ステータス":"返品受付検討中","担当者ID":"emp-00010","作成日時":"2026-11-14 09:30:00","作成者ID":"user-00012","更新日時":"2026-11-21 14:15:00","更新者ID":"user-00008"}],"案件ステータスマスタ":[{"ステータスID":"rec-00847","ステータスコード":"CREDIT_CHECK_PENDING","ステータス名":"与信確認待ち","説明":"受注登録完了後、顧客の与信限度額を確認する段階。大口顧客の定期発注案件で、与信残高が十分であることを営業事務が基幹システムで確認し、手配準備へ進む前提条件。","表示順序":9,"有効フラグ":true,"作成日時":"2026-11-19 11:20:00","更新日時":"2026-11-21 09:45:00","作成者":"user-00012","更新者":"user-00012"},{"ステータスID":"rec-00010","ステータスコード":"NEW_CUSTOMER_ADVANCE_PAYMENT_WAITING","ステータス名":"新規取引先前金待ち","説明":"新規取引先からの初回受注で、契約金（前金）の入金を待機中。与信限度額未設定のため、前金入金確認後に手配を進める。入金期限は受注から5営業日以内を目安とする。","表示順序":10,"有効フラグ":true,"作成日時":"2026-11-14 08:30:00","更新日時":"2026-11-21 14:15:00","作成者":"佐藤次郎","更新者":"鈴木花子"},{"ステータスID":"rec-00021","ステータスコード":"RECEIPT_COLLECTION_AWAITING","ステータス名":"受領書回収待ち","説明":"出荷完了後、顧客からの受領書（納品確認書）の回収を待機中。営業事務が受領書の到着を確認し、会計部門に引き渡すまでの段階。","表示順序":21,"有効フラグ":true,"作成日時":"2026-11-15 14:20:00","更新日時":"2026-11-21 09:30:00","作成者":"user-00008","更新者":"user-00012"},{"ステータスID":"rec-00015","ステータスコード":"DELIVERY_DELAY_NOTICE_PENDING","ステータス名":"納期遅延通知待ち","説明":"仕入先からの納期遅延連絡を待機中。遅延が確定したらお客様へ新納期を通知する段階。","表示順序":15,"有効フラグ":true,"作成日時":"2026-11-14 14:30:00","更新日時":"2026-11-21 09:15:00","作成者":"user-00012","更新者":"user-00008"},{"ステータスID":"rec-00004","ステータスコード":"DELIVERY_DATE_ANSWER_COMPLETED","ステータス名":"納期回答済み","説明":"複数仕入先への手配が完了し、全ての納期確認を得た。顧客への納期回答を実施済みの状態。出荷準備待ちの段階。","表示順序":14,"有効フラグ":true,"作成日時":"2026-11-15 08:30:00","更新日時":"2026-11-21 09:45:00","作成者":"user-00008","更新者":"user-00008"},{"ステータスID":"rec-00005","ステータスコード":"DISCOUNT_APPROVAL_PENDING","ステータス名":"値引き承認待ち","説明":"顧客からの納期短縮要望に対し、標準納期より10日間の前倒し対応を実施する際の値引き率15%について、部長承認を待機中の状態。営業担当者が部長に承認依頼を上げており、承認後は仕入先への緊急手配が開始される。","表示順序":3,"有効フラグ":true,"作成日時":"2026-11-19 14:20:00","更新日時":"2026-11-21 14:30:00","作成者":"user-00008","更新者":"user-00008"},{"ステータスID":"rec-00847","ステータスコード":"ESTIMATE_CONFIRMATION_PENDING","ステータス名":"与信確認待ち","説明":"285万円を超える高額見積について、課長の確認を待機中の状態。営業担当が見積書を作成し、課長の承認を得るまで顧客への提出は保留となる。","表示順序":4,"有効フラグ":true,"作成日時":"2026-11-21 09:15:00","更新日時":"2026-11-21 10:42:00","作成者":"user-00008","更新者":"user-00008"},{"ステータスID":"rec-00008","ステータスコード":"ESTIMATE_DRAFT_IN_PROGRESS","ステータス名":"受領書回収済み","説明":"営業担当が見積書をExcelで作成中の段階。顧客への提出前の準備状態。","表示順序":2,"有効フラグ":true,"作成日時":"2026-11-15 14:30:00","更新日時":"2026-11-21 08:00:00","作成者":"user-00001","更新者":"user-00001"},{"ステータスID":"rec-00008","ステータスコード":"QUOTATION_FOLLOW_UP_PENDING","ステータス名":"受領書回収済み","説明":"顧客から見積書を受け取った後、受注化への営業フォローを継続中。顧客の検討状況確認、追加質問への対応、納期・価格の調整交渉などを行う段階。","表示順序":7,"有効フラグ":true,"作成日時":"2026-11-15 08:30:00","更新日時":"2026-11-21 11:20:00","作成者":"user-00012","更新者":"user-00012"},{"ステータスID":"rec-00028","ステータスコード":"CANCEL_RECEIPT_PENDING","ステータス名":"キャンセル受付","説明":"顧客からのキャンセル依頼を受け付け、課長が受付可否を検討している状態。与信への影響、仕入先への手配取消の可否、既納分の返品対応等を総合判断中。","表示順序":24,"有効フラグ":true,"作成日時":"2026-11-21 08:30:00","更新日時":"2026-11-21 14:15:00","作成者":"user-00008","更新者":"user-00012"}],"優先度マスタ":[{"優先度ID":"rec-00001","優先度レベル":2,"優先度名":"高","説明":"大口顧客による毎月定期発注案件。与信確認が必要な標準案件。納期は月1回の定期サイクルで、金額は200万円以上300万円程度。営業事務は与信限度額を確認した上で、仕入先への手配を進める。標準的な対応フロー。","有効フラグ":true,"作成日時":"2026-11-21 08:30:00","更新日時":"2026-11-21 08:30:00","作成者":"佐藤花子","更新者":"佐藤花子"},{"優先度ID":"rec-00002","優先度レベル":2,"優先度名":"高","説明":"新規取引先からの初回注文で前金確認待ち中の案件。与信審査と前金入金確認が完了するまで優先的に進捗管理を行う必要がある。標準納期より短縮対応が求められる場合が多い。","有効フラグ":true,"作成日時":"2026-11-19 10:45:00","更新日時":"2026-11-21 14:20:00","作成者":"佐藤花子","更新者":"佐藤花子"},{"優先度ID":"rec-00003","優先度レベル":2,"優先度名":"高","説明":"在庫品のみで構成される小口案件。即日出荷が可能で、納期遅延リスクが低い。営業事務の手配工数も最小限。","有効フラグ":true,"作成日時":"2026-11-14 10:15:00","更新日時":"2026-11-20 16:45:00","作成者":"佐藤花子","更新者":"鈴木健一"},{"優先度ID":"rec-00004","優先度レベル":2,"優先度名":"高","説明":"仕入先の納期遅延により顧客への回答が遅れている案件。顧客満足度低下のリスクが高く、営業事務による仕入先への催促と顧客への進捗報告が急務。納期遅延通知を待機中の状態で、早期の対応が必要。","有効フラグ":true,"作成日時":"2026-11-21 08:30:00","更新日時":"2026-11-21 14:15:00","作成者":"鈴木健一","更新者":"佐藤由美"},{"優先度ID":"rec-00005","優先度レベル":2,"優先度名":"高","説明":"複数仕入先からの手配で納期確認が完了した案件。納期回答済みのため、入荷待ちフェーズへの進行優先度を高く設定。出荷期限までに余裕があるが、複数部品の同時入荷調整が必要なため注視が必要。","有効フラグ":true,"作成日時":"2026-11-21 09:30:00","更新日時":"2026-11-21 14:15:00","作成者":"佐藤花子","更新者":"鈴木健太"},{"優先度ID":"rec-00006","優先度レベル":2,"優先度名":"高","説明":"顧客からの納期短縮要望に対応する案件で、値引き承認待ちの状態。標準納期より10日間の前倒し対応を求められており、値引き率15%での承認が必要。営業担当が課長・部長の承認を待機中。","有効フラグ":true,"作成日時":"2026-11-21 09:15:00","更新日時":"2026-11-21 14:30:00","作成者":"鈴木健一","更新者":"佐藤美咲"},{"優先度ID":"rec-00007","優先度レベル":2,"優先度名":"高","説明":"高額設備交換案件で課長の事前確認が必要な見積。金額2,850,000円以上の案件に適用。営業担当が見積作成後、課長による内容確認と承認を待つ状態。","有効フラグ":true,"作成日時":"2026-11-21 09:15:00","更新日時":"2026-11-21 10:42:00","作成者":"佐藤花子","更新者":"鈴木一郎"},{"優先度ID":"rec-00008","優先度レベル":3,"優先度名":"中","説明":"既存顧客との定期取引で、在庫品のみで構成される小型案件。標準的な対応で対応。納期は通常納期で問題なし。","有効フラグ":true,"作成日時":"2026-11-14 08:30:00","更新日時":"2026-11-21 09:15:00","作成者":"鈴木花子","更新者":"佐藤健一"},{"優先度ID":"rec-00009","優先度レベル":1,"優先度名":"緊急","説明":"工場トラブルによる緊急対応案件。生産ライン停止リスクがあり、即日対応が必須。納期短縮、値引き承認の迅速化、仕入先への優先手配を実施。","有効フラグ":true,"作成日時":"2026-11-21 08:30:00","更新日時":"2026-11-21 14:15:00","作成者":"佐藤健一","更新者":"鈴木美咲"},{"優先度ID":"rec-00010","優先度レベル":2,"優先度名":"高","説明":"複数部品の混合注文で一部仕入先手配中の案件。在庫品と手配品が混在し、仕入先の納期確認が進捗のボトルネックとなる案件。納期遅延リスクが中程度あり、営業事務による仕入先への催促と顧客への納期調整が必要。","有効フラグ":true,"作成日時":"2026-11-14 10:15:00","更新日時":"2026-11-21 09:45:00","作成者":"佐藤花子","更新者":"鈴木美咲"}],"入荷予定":[{"入荷予定ID":"rec-00847-01","受注案件ID":"rec-00847","予定入荷日":"2026-11-28 14:00:00","予定数量":150,"実績入荷日":null,"実績数量":null,"ステータスコード":"入荷待ち","優先度コード":"高","備考":"大口定期発注の在庫品部分。仕入先A社からの納入予定。","作成日時":"2026-11-19 10:45:00","作成者":"佐藤美咲","更新日時":"2026-11-21 09:45:00","更新者":"佐藤美咲"},{"入荷予定ID":"rec-00001-01","受注案件ID":"rec-00001","予定入荷日":"2026-11-28 15:00:00","予定数量":105,"実績入荷日":null,"実績数量":null,"ステータスコード":"入荷待ち","優先度コード":"高","備考":"新規取引先山田精密工業の初回注文。前金確認完了。在庫品のみ構成。","作成日時":"2026-11-21 14:25:00","作成者":"佐藤美咲","更新日時":"2026-11-21 14:25:00","更新者":"佐藤美咲"},{"入荷予定ID":"rec-00002-01","受注案件ID":"rec-00002","予定入荷日":"2026-11-18 14:00:00","予定数量":262,"実績入荷日":"2026-11-18 13:45:00","実績数量":262,"ステータスコード":"受領書回収待ち","優先度コード":"通常","備考":"在庫品セット。全数入荷確認済み、11月20日に顧客へ出荷完了。受領書回収待ち中。","作成日時":"2026-11-14 10:30:00","作成者":"佐藤美咲","更新日時":"2026-11-20 16:50:00","更新者":"鈴木健一"},{"入荷予定ID":"rec-00003-01","受注案件ID":"rec-00003","予定入荷日":"2026-11-27 17:00:00","予定数量":100,"実績入荷日":null,"実績数量":null,"ステータスコード":"納期遅延通知待ち","優先度コード":"高","備考":"仕入先ユーロテック工業からの納期遅延通知を待機中。顧客回答保留。","作成日時":"2026-11-14 10:30:00","作成者":"佐藤美咲","更新日時":"2026-11-20 14:45:00","更新者":"鈴木健太"},{"入荷予定ID":"rec-00004-01","受注案件ID":"rec-00004","予定入荷日":"2026-11-28 15:30:00","予定数量":45,"実績入荷日":null,"実績数量":null,"ステータスコード":"入荷待ち","優先度コード":"高","備考":"ロックリング1種のみ。在庫品2種は別途出荷準備中。納期確認完了、出荷準備段階へ進行予定。","作成日時":"2026-11-21 09:50:00","作成者":"佐藤美咲","更新日時":"2026-11-21 14:15:00","更新者":"鈴木健太"},{"入荷予定ID":"rec-00005-01","受注案件ID":"rec-00005","予定入荷日":"2026-11-28 14:00:00","予定数量":1000,"実績入荷日":null,"実績数量":null,"ステータスコード":"値引き承認待ち","優先度コード":"高","備考":"納期短縮対応案件。値引き15%承認待ちのため入荷予定確定せず。部長承認後に仕入先へ正式発注予定。","作成日時":"2026-11-21 09:20:00","作成者":"佐藤美咲","更新日時":"2026-11-21 14:35:00","更新者":"山本健一"},{"入荷予定ID":"rec-00006-01","受注案件ID":"rec-00006","予定入荷日":null,"予定数量":null,"実績入荷日":null,"実績数量":null,"ステータスコード":"高額見積確認待ち","優先度コード":"高","備考":"見積段階のため入荷予定未確定。課長確認後に正式受注予定。","作成日時":"2026-11-21 09:15:00","作成者":"営業事務 佐藤","更新日時":"2026-11-21 10:42:00","更新者":"営業事務 佐藤"}],"商品":[{"商品ID":"prod-00156","商品コード":"BRG-6307-STD","商品名":"精密ボールベアリング 6307型","説明":"大口顧客定期発注向け標準品。高精度・低騒音。工場メンテナンス用途に最適。","単価":3850,"在庫数":2840,"最小在庫数":500,"ステータス":"販売中","作成日時":"2026-10-15 14:20:00","更新日時":"2026-11-21 08:30:00","作成者":"佐藤健一","更新者":"鈴木美咲"},{"商品ID":"prod-00157","商品コード":"BRG-6307-STD","商品名":"精密ボールベアリング 6307型","説明":"標準的な深溝玉軸受。産業機械、旋盤、プレス機など幅広い用途に対応。高精度・長寿命。ISO規格品。","単価":3850,"在庫数":847,"最小在庫数":200,"ステータス":"販売中","作成日時":"2026-10-15 14:30:00","更新日時":"2026-11-21 08:15:00","作成者":"佐藤健一","更新者":"鈴木美咲"},{"商品ID":"prod-00847","商品コード":"MNT-HYD-0847","商品名":"油圧シリンダ用シールキット 10個セット","説明":"工場メンテナンス用の小ロット在庫品。油圧シリンダの定期メンテナンスに使用するシール部品セット。廃止予定だが在庫残存。","単価":8500,"在庫数":7,"最小在庫数":10,"ステータス":"廃止予定","作成日時":"2026-10-07 14:20:00","更新日時":"2026-11-18 11:35:00","作成者":"鈴木健一","更新者":"佐藤美咲"},{"商品ID":"prod-00158","商品コード":"TOOL-2026-0001","商品名":"NC旋盤用超硬ハイス刃物セット","説明":"高精度加工用の超硬合金製刃物。旋盤加工の仕上げ面精度向上に最適。","単価":385000,"在庫数":3,"最小在庫数":5,"ステータス":"販売中","作成日時":"2026-11-07 14:30:00","更新日時":"2026-11-21 11:15:00","作成者":"佐藤健一","更新者":"鈴木美咲"},{"商品ID":"prod-00159","商品コード":"PRD-2026-0156","商品名":"工業用潤滑油 VG46 20L缶","説明":"季節需要が高い汎用工業用潤滑油。油圧装置、ギアボックス、スピンドル軸受け等の潤滑に適用。ISO VG46粘度。","単価":8500,"在庫数":187,"最小在庫数":50,"ステータス":"販売中","作成日時":"2026-10-15 14:30:00","更新日時":"2026-11-21 08:20:00","作成者":"佐藤健一","更新者":"鈴木美咲"},{"商品ID":"prod-00160","商品コード":"HYD-CYL-0050","商品名":"油圧シリンダ φ50×ストローク500mm","説明":"プレス機・鍛造機向け大型油圧シリンダ。耐圧210MPa、ポート径G3/4。受注生産品のため納期は8～12週間。","単価":57000,"在庫数":0,"最小在庫数":0,"ステータス":"販売中","作成日時":"2026-10-08 14:22:00","更新日時":"2026-11-21 08:30:00","作成者":"佐藤健一","更新者":"鈴木美咲"},{"商品ID":"prod-00161","商品コード":"HS-OLD-2026-047","商品名":"旧型油圧シリンダ制御弁（廃止品）","説明":"2024年型プレス機用油圧制御弁。新型への切り替えに伴い廃止。在庫処分中。","単価":18500,"在庫数":7,"最小在庫数":0,"ステータス":"廃止","作成日時":"2026-10-07 14:20:00","更新日時":"2026-11-18 11:05:00","作成者":"佐藤健一","更新者":"鈴木美咲"},{"商品ID":"prod-00162","商品コード":"BRG-6307-SP","商品名":"精密ボールベアリング 6307型（仕入先限定品）","説明":"NSK製6307型精密ボールベアリング。高精度・低騒音。仕入先が限定されており、納期は標準14日。","単価":3850,"在庫数":8,"最小在庫数":50,"ステータス":"販売中","作成日時":"2026-10-15 14:30:00","更新日時":"2026-11-21 08:45:00","作成者":"佐藤花子","更新者":"鈴木次郎"},{"商品ID":"prod-00163","商品コード":"BOLT-M8-1.25-SS","商品名":"ステンレス六角ボルト M8×1.25 (SUS304)","説明":"複数仕入先から調達可能な標準ボルト。機械部品・産業機械の組立・修理に常用。SUS304材質で耐食性に優れ、一般的な機械組立に適合。","単価":85,"在庫数":4850,"最小在庫数":1000,"ステータス":"販売中","作成日時":"2026-10-22 08:30:00","更新日時":"2026-11-21 07:15:00","作成者":"鈴木健一","更新者":"佐藤美咲"},{"商品ID":"prod-00164","商品コード":"SL-2026-1147","商品名":"高機能シール材 耐熱・耐薬品タイプ","説明":"機械部品の密閉・防漏用。耐熱性200℃、耐薬品性に優れた高機能シール材。工場向け標準在庫品として新規追加。","単価":3500,"在庫数":8,"最小在庫数":15,"ステータス":"販売中","作成日時":"2026-11-18 14:30:00","更新日時":"2026-11-21 09:15:00","作成者":"佐藤雄一","更新者":"鈴木美咲"}],"案件商品紐付け":[{"案件商品紐付けID":"rec-00847-001","受注案件ID":"rec-00847","商品ID":"prod-00156","数量":50,"入荷予定ID":"arr-00421-001","備考":"大口顧客定期発注。在庫品30個+手配品20個。与信確認待ち中のため出荷保留。","作成日時":"2026-11-19 10:30:00","更新日時":"2026-11-21 09:45:00","作成者":"user-00012","更新者":"user-00012"},{"案件商品紐付けID":"rec-00001-001","受注案件ID":"rec-00001","商品ID":"prod-00047","数量":100,"入荷予定ID":"arr-00089-001","備考":"新規取引先・山田精密工業の初回注文。前金確認後に仕入先へ手配予定。","作成日時":"2026-11-19 10:45:00","更新日時":"2026-11-21 14:20:00","作成者":"user-00008","更新者":"user-00008"},{"案件商品紐付けID":"rec-00002-001","受注案件ID":"rec-00002","商品ID":"prod-00156","数量":12,"入荷予定ID":null,"備考":"在庫品。2026-11-20出荷完了。","作成日時":"2026-11-14 10:30:00","更新日時":"2026-11-20 16:50:00","作成者":"user-00012","更新者":"user-00015"},{"案件商品紐付けID":"rec-00003-001","受注案件ID":"rec-00003","商品ID":"prod-00847","数量":100,"入荷予定ID":"arr-sch-00156","備考":"仕入先(ユニオン精密)の納期遅延により、お客様への納期回答が保留中。仕入先からの正式な遅延通知を待機している状態。","作成日時":"2026-11-14 10:45:00","更新日時":"2026-11-20 14:45:00","作成者":"user-00008","更新者":"user-00008"},{"案件商品紐付けID":"rec-00004-001","受注案件ID":"rec-00004","商品ID":"prod-00128","数量":3,"入荷予定ID":"arr-00847-001","備考":"ジョウ部品3種のうち2種は在庫品、ロックリング1種は仕入先手配中。納期12月5日で確認済み。","作成日時":"2026-11-19 10:45:00","更新日時":"2026-11-21 09:45:00","作成者":"user-00008","更新者":"user-00008"},{"案件商品紐付けID":"rec-00005-001","受注案件ID":"rec-00005","商品ID":"prod-00234","数量":1000,"入荷予定ID":"arr-00892-001","備考":"納期短縮対応のため仕入先に優先手配依頼済み。値引き率15%は課長承認待ち中。納期2026-12-05までに納入必須。","作成日時":"2026-11-21 09:15:00","更新日時":"2026-11-21 14:30:00","作成者":"user-00008","更新者":"user-00008"},{"案件商品紐付けID":"rec-00006-001","受注案件ID":"rec-00006","商品ID":"prod-00847","数量":50,"入荷予定ID":null,"備考":"油圧シリンダ。課長確認後の手配予定。仕入先は協栄機械。","作成日時":"2026-11-21 09:20:00","更新日時":"2026-11-21 10:42:00","作成者":"user-00008","更新者":"user-00008"},{"案件商品紐付けID":"rec-00847-002","受注案件ID":"rec-00847","商品ID":"prod-00156","数量":50,"入荷予定ID":"arr-00423-001","備考":"仕入先手配済み、納期確認中。旋盤用チャック部品ジョウ（A型）。標準納期12月3日予定。","作成日時":"2026-11-19 10:45:00","更新日時":"2026-11-21 09:30:00","作成者":"user-00012","更新者":"user-00012"},{"案件商品紐付けID":"rec-00002-002","受注案件ID":"rec-00002","商品ID":"prod-00847","数量":12,"入荷予定ID":null,"備考":"在庫品。出荷準備完了、本日中に梱包予定","作成日時":"2026-11-14 10:20:00","更新日時":"2026-11-21 08:30:00","作成者":"user-00012","更新者":"user-00015"},{"案件商品紐付けID":"rec-00003-002","受注案件ID":"rec-00003","商品ID":"prod-00284","数量":100,"入荷予定ID":"arr-sch-00157","備考":"納期遅延により受領書回収が遅れている。仕入先からの遅延通知待機中。受領書催促予定。","作成日時":"2026-11-14 10:30:00","更新日時":"2026-11-21 11:15:00","作成者":"user-00008","更新者":"user-00012"}],"納期回答期限管理":[{"納期回答期限管理ID":"rec-00847","受注案件ID":"rec-00847","回答期限日時":"2026-11-21 17:00:00","回答状況":"未回答","実回答日時":null,"回答内容":null,"期限超過フラグ":false,"作成日時":"2026-11-19 10:30:00","作成者":"user-00012","更新日時":"2026-11-21 09:45:00","更新者":"user-00012"},{"納期回答期限管理ID":"rec-00001","受注案件ID":"rec-00001","回答期限日時":"2026-11-22 17:00:00","回答状況":"未回答","実回答日時":null,"回答内容":null,"期限超過フラグ":false,"作成日時":"2026-11-19 10:50:00","作成者":"user-00008","更新日時":"2026-11-21 14:25:00","更新者":"user-00008"},{"納期回答期限管理ID":"rec-00002","受注案件ID":"rec-00002","回答期限日時":"2026-11-15T17:00:00","回答状況":"回答済み","実回答日時":"2026-11-14T14:30:00","回答内容":"在庫品のため2026年11月20日17時に納入予定。ベアリング12個、ボルト100本、ワッシャー150枚は全て倉庫在庫で確保済み。","期限超過フラグ":false,"作成日時":"2026-11-14T10:20:00","作成者":"user-00012","更新日時":"2026-11-14T14:35:00","更新者":"user-00012"},{"納期回答期限管理ID":"rec-00003","受注案件ID":"rec-00003","回答期限日時":"2026-11-18T17:00:00","回答状況":"期限超過","実回答日時":"2026-11-21T11:30:00","回答内容":"仕入先納期遅延のため、当初予定の11月28日から12月8日への変更納期で顧客に通知。追加対応費用なし。","期限超過フラグ":true,"作成日時":"2026-11-14T10:45:00","作成者":"user-00008","更新日時":"2026-11-21T11:30:00","更新者":"user-00008"},{"納期回答期限管理ID":"rec-00004","受注案件ID":"rec-00004","回答期限日時":"2026-11-21 17:00:00","回答状況":"回答済み","実回答日時":"2026-11-21 14:30:00","回答内容":"NC旋盤用チャック部品一式。ジョウ部品2種は在庫品で2026-11-25出荷、ロックリング1種は仕入先納期2026-11-28確認済みため全体納期2026-12-05対応可能。","期限超過フラグ":false,"作成日時":"2026-11-19 11:20:00","作成者":"user-00008","更新日時":"2026-11-21 14:35:00","更新者":"user-00008"},{"納期回答期限管理ID":"rec-00005","受注案件ID":"rec-00005","回答期限日時":"2026-11-24 17:00:00","回答状況":"未回答","実回答日時":null,"回答内容":null,"期限超過フラグ":false,"作成日時":"2026-11-21 09:30:00","作成者":"user-00008","更新日時":"2026-11-21 14:35:00","更新者":"user-00008"},{"納期回答期限管理ID":"rec-00006","受注案件ID":"rec-00006","回答期限日時":null,"回答状況":"未回答","実回答日時":null,"回答内容":null,"期限超過フラグ":false,"作成日時":"2026-11-21 10:42:00","作成者":"user-00008","更新日時":"2026-11-21 10:42:00","更新者":"user-00008"},{"納期回答期限管理ID":"rec-00003","受注案件ID":"rec-00003","回答期限日時":"2026-11-21 17:00:00","回答状況":"回答済み","実回答日時":"2026-11-21 16:30:00","回答内容":"仕入先納期遅延により納期を2026-12-05から2026-12-10に変更。顧客に電話とメールで通知済み。","期限超過フラグ":false,"作成日時":"2026-11-20 14:45:00","作成者":"user-00008","更新日時":"2026-11-21 16:35:00","更新者":"user-00008"},{"納期回答期限管理ID":"rec-00004","受注案件ID":"rec-00004","回答期限日時":"2026-11-23 17:00:00","回答状況":"未回答","実回答日時":null,"回答内容":null,"期限超過フラグ":false,"作成日時":"2026-11-21 10:30:00","作成者":"user-00008","更新日時":"2026-11-21 10:30:00","更新者":"user-00008"},{"納期回答期限管理ID":"rec-00004","受注案件ID":"rec-00004","回答期限日時":"2026-11-21 17:00:00","回答状況":"回答済み","実回答日時":"2026-11-21 11:30:00","回答内容":"在庫確認完了。ジョウ部品2種は即日出荷可能、ロックリング1種は仕入先より2026-12-04納入予定のため、全品揃い納期は2026-12-05となります。","期限超過フラグ":false,"作成日時":"2026-11-19 10:45:00","作成者":"user-00008","更新日時":"2026-11-21 11:30:00","更新者":"user-00012"}],"見積提出履歴":[{"見積提出履歴ID":"rec-00847-est-001","受注案件ID":"rec-00847","見積提出番号":"001","見積金額":2850000,"提出日時":"2026-11-18 14:30:00","提出者":"佐藤健一","見積有効期限":"2026-12-02 23:59:59","備考":"大口顧客定期発注。標準金額・標準納期での提示。来月以降も同条件での継続発注を想定。","作成日時":"2026-11-18 14:30:00","更新日時":"2026-11-18 14:30:00"},{"見積提出履歴ID":"rec-00001-est-001","受注案件ID":"rec-00001","見積提出番号":"001","見積金額":385000,"提出日時":"2026-11-19 10:30:00","提出者":"佐藤健一","見積有効期限":"2026-12-03 23:59:59","備考":"新規取引先向け初回見積。前金条件（全額前払い）での提出。納期12月5日対応可能。","作成日時":"2026-11-19 10:45:00","更新日時":"2026-11-19 10:45:00"},{"見積提出履歴ID":"rec-00002-est-001","受注案件ID":"rec-00002","見積提出番号":"001","見積金額":187500,"提出日時":"2026-11-14 09:45:00","提出者":"佐藤花子","見積有効期限":"2026-11-28 17:00:00","備考":"在庫品のみ。即納対応。工場メンテナンス用部品セット。","作成日時":"2026-11-14 09:45:00","更新日時":"2026-11-14 09:45:00"},{"見積提出履歴ID":"rec-00003-est-001","受注案件ID":"rec-00003","見積提出番号":"001","見積金額":385000,"提出日時":"2026-11-14 11:20:00","提出者":"佐藤健一","見積有効期限":"2026-11-28 17:00:00","備考":"仕入先納期が長いため納期は28日での提示。特殊ハイス刃物は在庫なし、仕入先より標準納期14日を確認済み。","作成日時":"2026-11-14 11:20:00","更新日時":"2026-11-21 14:45:00"},{"見積提出履歴ID":"rec-00847-est-002","受注案件ID":"rec-00847","見積提出番号":"002","見積金額":2565000,"提出日時":"2026-11-21 14:30:00","提出者":"佐藤由美","見積有効期限":"2026-12-05 23:59:59","備考":"値引き交渉後の再提出。10%値引き適用（初回見積2850000円から285000円減）。納期短縮対応による割引。","作成日時":"2026-11-21 14:30:00","更新日時":"2026-11-21 14:30:00"},{"見積提出履歴ID":"rec-00006-est-001","受注案件ID":"rec-00006","見積提出番号":"001","見積金額":2850000,"提出日時":"2026-11-21 10:30:00","提出者":"佐藤健一","見積有効期限":"2026-12-05 23:59:59","備考":"高額案件のため課長確認前の初回見積。納期短縮対応のため値引き検討中。","作成日時":"2026-11-21 10:30:00","更新日時":"2026-11-21 10:30:00"},{"見積提出履歴ID":"rec-00005-est-001","受注案件ID":"rec-00005","見積提出番号":"001","見積金額":2135000,"提出日時":"2026-11-21 14:20:00","提出者":"佐藤美咲","見積有効期限":"2026-12-05 23:59:59","備考":"納期短縮対応（標準比10日前倒し）。割増料金15%含む。仕入先への特急手配費用と運送費を上乗せ。","作成日時":"2026-11-21 14:20:00","更新日時":"2026-11-21 14:20:00"},{"見積提出履歴ID":"rec-00847-est-003","受注案件ID":"rec-00847","見積提出番号":"003","見積金額":2850000,"提出日時":"2026-11-18 14:30:00","提出者":"佐藤健一","見積有効期限":"2026-12-02 23:59:59","備考":"お客様より11月20日に仕様変更依頼を受け、潤滑油グレードの変更に伴う再提出。変更内容は別紙確認書参照。","作成日時":"2026-11-18 14:35:00","更新日時":"2026-11-21 08:20:00"},{"見積提出履歴ID":"rec-00005-est-003","受注案件ID":"rec-00005","見積提出番号":"003","見積金額":1572500,"提出日時":"2026-11-21 14:20:00","提出者":"佐藤健一","見積有効期限":"2026-12-05 23:59:59","備考":"値引き交渉の最終提案。納期短縮対応15%値引き適用。部長承認済み。","作成日時":"2026-11-21 14:20:00","更新日時":"2026-11-21 14:20:00"},{"見積提出履歴ID":"rec-00156-est-003","受注案件ID":"rec-00006","見積提出番号":"003","見積金額":2850000,"提出日時":"2026-11-15 14:30:00","提出者":"佐藤次郎","見積有効期限":"2026-11-21 23:59:59","備考":"有効期限超過により失効。顧客からの期限延長依頼なし。","作成日時":"2026-11-15 14:35:00","更新日時":"2026-11-21 16:20:00"}],"手配期限管理":[{"手配期限管理ID":"rec-00847-001","案件商品紐付けID":"rec-00847-prod-001","受注案件ID":"rec-00847","商品ID":"prod-00156","手配期限日":"2026-11-25 17:00:00","手配数量":150,"手配ステータス":"仕入先手配済み","実手配日":"2026-11-20 14:30:00","仕入先ID":"supp-00018","備考":"定期発注品。仕入先ユニオン精密から納期確認済み。11月28日納入予定。","作成日時":"2026-11-19 11:20:00","更新日時":"2026-11-20 14:35:00","作成者":"user-00012","更新者":"user-00015"},{"手配期限管理ID":"rec-00001-001","案件商品紐付けID":"rec-00001-prod-001","受注案件ID":"rec-00001","商品ID":"prod-00156","手配期限日":"2026-11-25 17:00:00","手配数量":100,"手配ステータス":"手配準備中","実手配日":null,"仕入先ID":"supp-00012","備考":"新規取引先・山田精密工業の初回注文。前金確認待ちのため手配未実行。前金入金後に手配予定。","作成日時":"2026-11-19 10:45:00","更新日時":"2026-11-21 14:20:00","作成者":"user-00008","更新者":"user-00008"},{"手配期限管理ID":"rec-00002-001","案件商品紐付けID":"rec-00002-prod-001","受注案件ID":"rec-00002","商品ID":"prod-00847","手配期限日":"2026-11-14 17:00:00","手配数量":12,"手配ステータス":"納期回答済み","実手配日":"2026-11-14 09:30:00","仕入先ID":"supp-00012","備考":"在庫品のため手配不要。納期回答済み状態として記録。","作成日時":"2026-11-14 10:15:00","更新日時":"2026-11-20 16:45:00","作成者":"user-00012","更新者":"user-00015"},{"手配期限管理ID":"rec-00003-001","案件商品紐付けID":"rec-00003-prod-001","受注案件ID":"rec-00003","商品ID":"prod-00847","手配期限日":"2026-11-18 17:00:00","手配数量":100,"手配ステータス":"納期遅延通知待ち","実手配日":"2026-11-14 14:30:00","仕入先ID":"supp-00023","備考":"仕入先より納期遅延通知あり。当初納期2026-11-27予定が遅延。新納期回答を待機中。","作成日時":"2026-11-14 14:35:00","更新日時":"2026-11-20 14:45:00","作成者":"user-00008","更新者":"user-00008"},{"手配期限管理ID":"rec-00847-002","案件商品紐付けID":"rec-00847-prod-002","受注案件ID":"rec-00847","商品ID":"prod-00156","手配期限日":"2026-11-28 17:00:00","手配数量":50,"手配ステータス":"仕入先手配済み","実手配日":"2026-11-20 14:30:00","仕入先ID":"supp-00018","備考":"旋盤用チャック部品。標準納期10営業日。仕入先確認済み。","作成日時":"2026-11-19 11:20:00","更新日時":"2026-11-20 14:35:00","作成者":"user-00012","更新者":"user-00012"},{"手配期限管理ID":"rec-00005-001","案件商品紐付けID":"rec-00005-prod-001","受注案件ID":"rec-00005","商品ID":"prod-00234","手配期限日":"2026-11-24 17:00:00","手配数量":1000,"手配ステータス":"手配準備中","実手配日":null,"仕入先ID":"supp-00012","備考":"顧客納期短縮要望対応。標準納期より10日前倒し。値引き承認待ちのため手配準備段階","作成日時":"2026-11-21 09:30:00","更新日時":"2026-11-21 14:45:00","作成者":"user-00008","更新者":"user-00012"},{"手配期限管理ID":"rec-00005-002","案件商品紐付けID":"rec-00005-prod-002","受注案件ID":"rec-00005","商品ID":"prod-00847","手配期限日":"2026-11-25 17:00:00","手配数量":1000,"手配ステータス":"手配準備中","実手配日":null,"仕入先ID":"supp-00012","備考":"値引き15%の承認待ち中。承認後に仕入先NTN工業へ手配予定。納期短縮対応のため優先処理。","作成日時":"2026-11-21 09:20:00","更新日時":"2026-11-21 14:35:00","作成者":"user-00008","更新者":"user-00008"},{"手配期限管理ID":"rec-00847-003","案件商品紐付けID":"rec-00847-prod-003","受注案件ID":"rec-00847","商品ID":"prod-00156","手配期限日":"2026-11-25 17:00:00","手配数量":150,"手配ステータス":"仕入先手配済み","実手配日":"2026-11-19 14:30:00","仕入先ID":"supp-00012","備考":"通常納期での手配完了。仕入先からの入荷を待機中。","作成日時":"2026-11-19 14:35:00","更新日時":"2026-11-21 08:20:00","作成者":"user-00012","更新者":"user-00012"},{"手配期限管理ID":"rec-00847-004","案件商品紐付けID":"rec-00847-prod-004","受注案件ID":"rec-00847","商品ID":"prod-00156","手配期限日":"2026-11-25 17:00:00","手配数量":150,"手配ステータス":"仕入先手配済み","実手配日":"2026-11-20 14:30:00","仕入先ID":"supp-00012","備考":"A社への手配完了。納期確認済み。標準納期内での対応。","作成日時":"2026-11-20 14:35:00","更新日時":"2026-11-21 09:15:00","作成者":"user-00012","更新者":"user-00012"},{"手配期限管理ID":"rec-00847-005","案件商品紐付けID":"rec-00847-prod-005","受注案件ID":"rec-00847","商品ID":"prod-00156","手配期限日":"2026-11-24 17:00:00","手配数量":50,"手配ステータス":"仕入先手配済み","実手配日":"2026-11-20 14:30:00","仕入先ID":"supp-00012","備考":"前回納期遅延経験から安全在庫確保のため早期期限設定。仕入先確認済み納期2026-11-28予定。","作成日時":"2026-11-19 11:20:00","更新日時":"2026-11-20 14:45:00","作成者":"user-00012","更新者":"user-00012"}],"仕入先納期遅延報告":[{"遅延報告ID":"rec-00003-delay-001","受注案件ID":"rec-00003","案件商品紐付けID":"prod-link-00847-001","仕入先ID":"supplier-00023","商品ID":"prod-00156","元納期":"2026-11-27 17:00:00","新納期":"2026-12-04 17:00:00","遅延日数":7,"遅延理由":"原材料の調達遅延により、ハイス刃物の熱処理工程が予定より遅れている。現在、代替材料での対応を検討中。","報告日時":"2026-11-21 08:30:00","対応状況":"確認中","対応内容":"仕入先との納期短縮可能性を確認中。顧客への新納期回答は仕入先からの確定報告を待機。","作成日時":"2026-11-21 08:45:00","更新日時":"2026-11-21 14:15:00","作成者":"user-00008","更新者":"user-00012"},{"遅延報告ID":"rec-00001-delay-001","受注案件ID":"rec-00001","案件商品紐付けID":"prod-link-00001-001","仕入先ID":"supplier-00015","商品ID":"prod-00847","元納期":"2026-12-05 17:00:00","新納期":"2026-12-10 17:00:00","遅延日数":5,"遅延理由":"初回納入のため製造工程の調整に予想以上の時間を要した。品質確認も厳格に実施中のため。","報告日時":"2026-11-21 13:30:00","対応状況":"確認中","対応内容":"新規取引先からの初回注文のため、顧客への納期変更通知方法を検討中。営業担当と調整予定。","作成日時":"2026-11-21 13:45:00","更新日時":"2026-11-21 14:20:00","作成者":"user-00008","更新者":"user-00008"},{"遅延報告ID":"rec-00002-delay-001","受注案件ID":"rec-00003","案件商品紐付けID":"prod-link-00003-001","仕入先ID":"supplier-00018","商品ID":"prod-00847","元納期":"2026-11-22 17:00:00","新納期":"2026-11-28 17:00:00","遅延日数":6,"遅延理由":"仕入先の製造工程の不具合により、ハイス刃物の焼入れ工程で不良が発生。代替品の製造に6日間要する。","報告日時":"2026-11-20 14:30:00","対応状況":"対応済み","対応内容":"顧客（NC加工工場）に11月20日15時に電話で遅延と新納期を報告済み。顧客は生産スケジュール調整で対応可能と確認。仕入先に品質改善を指導。","作成日時":"2026-11-20 14:35:00","更新日時":"2026-11-21 09:20:00","作成者":"user-00008","更新者":"user-00012"},{"遅延報告ID":"rec-00003-delay-002","受注案件ID":"rec-00003","案件商品紐付けID":"prod-link-00847-002","仕入先ID":"supplier-00023","商品ID":"prod-00156","元納期":"2026-11-24 17:00:00","新納期":"2026-12-04 17:00:00","遅延日数":10,"遅延理由":"生産ラインの予期しない機械トラブルにより、ハイス刃物の熱処理工程が停止。復旧に10日間要する見込み。","報告日時":"2026-11-20 14:30:00","対応状況":"対応済み","対応内容":"仕入先との協議により、代替仕入先（協栄工業）からの同等品手配を完了。新納期12月4日で確定、顧客納期12月5日に間に合わせ可能。","作成日時":"2026-11-20 14:45:00","更新日時":"2026-11-21 10:15:00","作成者":"user-00008","更新者":"user-00012"},{"遅延報告ID":"rec-00004-delay-001","受注案件ID":"rec-00004","案件商品紐付けID":"prod-link-00847-003","仕入先ID":"supplier-00012","商品ID":"prod-00156","元納期":"2026-12-02 17:00:00","新納期":"2026-12-05 17:00:00","遅延日数":3,"遅延理由":"ロックリング製造工程の機械トラブルにより3日間の生産遅延が発生","報告日時":"2026-11-20 14:30:00","対応状況":"対応済み","対応内容":"チャック部品セット内のジョウ部品2種を先行出荷、ロックリングは12月5日納期で分割出荷対応済み","作成日時":"2026-11-20 15:10:00","更新日時":"2026-11-21 09:45:00","作成者":"user-00008","更新者":"user-00012"},{"遅延報告ID":"rec-00005-delay-001","受注案件ID":"rec-00005","案件商品紐付けID":"prod-link-00012-001","仕入先ID":"supplier-00018","商品ID":"prod-00045","元納期":"2026-11-28 17:00:00","新納期":"2026-12-08 17:00:00","遅延日数":10,"遅延理由":"納期短縮対応の特急手配から標準納期への変更。生産計画の都合により、当初の前倒し納期対応が困難となった。","報告日時":"2026-11-21 11:30:00","対応状況":"確認中","対応内容":"仕入先からの遅延通知を受け、顧客への納期変更連絡の調整を進行中。営業担当と課長で対応方針を検討予定。","作成日時":"2026-11-21 11:35:00","更新日時":"2026-11-21 14:20:00","作成者":"user-00008","更新者":"user-00012"},{"遅延報告ID":"rec-00006-delay-001","受注案件ID":"rec-00006","案件商品紐付けID":"prod-link-00006-001","仕入先ID":"supplier-00012","商品ID":"prod-00847","元納期":"2026-12-10 17:00:00","新納期":"2026-12-18 17:00:00","遅延日数":8,"遅延理由":"部品調達先の生産遅延により、油圧シリンダの納期確保が困難。代替仕入先への急遽手配を検討中。","報告日時":"2026-11-21 11:30:00","対応状況":"対応中","対応内容":"代替仕入先2社に急遽見積・納期照会を実施。仕入先Aより12月16日納期で対応可能との回答を得た。顧客への納期変更交渉を営業担当に依頼。","作成日時":"2026-11-21 11:35:00","更新日時":"2026-11-21 14:20:00","作成者":"user-00012","更新者":"user-00012"},{"遅延報告ID":"rec-00007-delay-001","受注案件ID":"rec-00003","案件商品紐付けID":"prod-link-00847-004","仕入先ID":"supplier-00018","商品ID":"prod-00156","元納期":"2026-11-25 17:00:00","新納期":"2026-11-28 17:00:00","遅延日数":3,"遅延理由":"在庫確保遅延。仕入先の原材料調達の遅れにより、ハイス刃物の製造スケジュールが後ろ倒しになった","報告日時":"2026-11-20 14:30:00","対応状況":"対応済み","対応内容":"営業担当が顧客に電話で事前連絡。新納期2026-11-28での対応を了承いただいた。受注進捗表を更新し、出荷予定を修正","作成日時":"2026-11-20 14:45:00","更新日時":"2026-11-21 09:30:00","作成者":"user-00008","更新者":"user-00012"}],"顧客通知履歴":[{"顧客通知履歴ID":"ntf-00847-notif-001","受注案件ID":"rec-00847","通知種別":"与信確認中","通知内容":"11月定期発注案件の与信限度額確認中です。確認完了までお待ちください。","送信先メールアドレス":"order@yamada-kogyou.jp","送信日時":"2026-11-21 09:50:00","送信ステータス":"成功","再送回数":0,"開封フラグ":true,"作成日時":"2026-11-21 09:50:00","更新日時":"2026-11-21 14:15:00","作成者":"佐藤美咲"},{"顧客通知履歴ID":"rec-00001-notif-001","受注案件ID":"rec-00001","通知種別":"前金待機通知","通知内容":"ご注文いただきました精密ボールベアリング セット注文（ORD-2026-11-0001）につきまして、新規取引先様のため前金のご入金をお願いさせていただいております。ご入金確認後、速やかに手配させていただきます。ご不明な点はお気軽にお問い合わせください。","送信先メールアドレス":"yamada-seimitsu@example.co.jp","送信日時":"2026-11-19 11:30:00","送信ステータス":"成功","再送回数":0,"開封フラグ":true,"作成日時":"2026-11-19 11:25:00","更新日時":"2026-11-20 14:15:00","作成者":"佐藤美咲"},{"顧客通知履歴ID":"rec-00002-notif-001","受注案件ID":"rec-00002","通知種別":"出荷完了通知","通知内容":"ベアリング・ボルト・ワッシャーセットが本日出荷されました。送り状番号はSHP-2026-11-0847です。","送信先メールアドレス":"tanaka@yamada-factory.co.jp","送信日時":"2026-11-20 17:30:00","送信ステータス":"成功","再送回数":0,"開封フラグ":true,"作成日時":"2026-11-20 17:15:00","更新日時":"2026-11-20 17:30:00","作成者":"鈴木花子"},{"顧客通知履歴ID":"rec-00003-notif-002","受注案件ID":"rec-00003","通知種別":"納期遅延報告","通知内容":"仕入先からの納期遅延通知を受けました。NC旋盤用ハイス刃物セット100本の納期が2026-11-28から2026-12-03に変更となります。ご迷惑をおかけして申し訳ございません。","送信先メールアドレス":"tanaka@cust-00284.co.jp","送信日時":"2026-11-21 15:30:00","送信ステータス":"再送待機","再送回数":1,"開封フラグ":false,"作成日時":"2026-11-21 15:25:00","更新日時":"2026-11-21 15:30:00","作成者":"佐藤美咲"},{"顧客通知履歴ID":"rec-00004-notif-001","受注案件ID":"rec-00004","通知種別":"納期回答依頼","通知内容":"NC旋盤用チャック部品一式のご注文について、納期をご案内いたします。ジョウ部品3種類は在庫確保済みで、ロックリング1種は仕入先より2026年12月05日の納期確認を得ております。全品揃い次第、出荷予定です。","送信先メールアドレス":"procurement@yamada-seiki.co.jp","送信日時":"2026-11-21 09:50:00","送信ステータス":"成功","再送回数":0,"開封フラグ":true,"作成日時":"2026-11-21 09:45:00","更新日時":"2026-11-21 10:30:00","作成者":"佐藤由美"},{"顧客通知履歴ID":"rec-00005-notif-001","受注案件ID":"rec-00005","通知種別":"値引き承認待ち確認","通知内容":"納期短縮対応（10日前倒し）に伴う値引き率15%の承認申請状況をご報告いたします。現在、管理部門での承認手続き中です。本日中のご返答を予定しております。","送信先メールアドレス":"sales@cust-00156.co.jp","送信日時":"2026-11-21 14:35:00","送信ステータス":"成功","再送回数":0,"開封フラグ":false,"作成日時":"2026-11-21 14:30:00","更新日時":"2026-11-21 14:35:00","作成者":"佐藤美咲"},{"顧客通知履歴ID":"rec-00006-notif-001","受注案件ID":"rec-00006","通知種別":"納期回答依頼","通知内容":"プレス機用油圧シリンダ50本と制御弁セットの見積内容確認をお願いします。ご質問やご不明な点がございましたら、お気軽にお問い合わせください。","送信先メールアドレス":"procurement@suzuki-factory.jp","送信日時":"2026-11-21 11:30:00","送信ステータス":"成功","再送回数":0,"開封フラグ":false,"作成日時":"2026-11-21 11:30:00","更新日時":"2026-11-21 11:30:00","作成者":"佐藤美咲"},{"顧客通知履歴ID":"rec-00003-notif-001","受注案件ID":"rec-00003","通知種別":"遅延報告","通知内容":"いつもお世話になっております。ご注文いただきました「NC旋盤用ハイス刃物セット 100本」につきまして、仕入先の生産遅延により、当初予定の納期2026年11月28日から2026年12月08日への変更をお願いいたします。ご迷惑をおかけして申し訳ございません。","送信先メールアドレス":"procurement@cust-00284.co.jp","送信日時":"2026-11-21 15:30:00","送信ステータス":"成功","再送回数":0,"開封フラグ":true,"作成日時":"2026-11-21 15:25:00","更新日時":"2026-11-21 15:30:00","作成者":"鈴木花子"},{"顧客通知履歴ID":"rec-00847-notif-002","受注案件ID":"rec-00847","通知種別":"納期回答依頼","通知内容":"いつもお世話になっております。本日ご発注いただきました11月定期発注 機械部品セットにつきまして、納期のご確認をさせていただきたくご連絡いたします。現在、仕入先への手配を進めており、予定納期は2026年12月5日を予定しております。ご不明な点やご変更がございましたら、お気軽にお問い合わせください。","送信先メールアドレス":"procurement@yamada-seisaku.co.jp","送信日時":"2026-11-21 09:50:00","送信ステータス":"成功","再送回数":0,"開封フラグ":true,"作成日時":"2026-11-21 09:48:00","更新日時":"2026-11-21 10:15:00","作成者":"営業事務システム"},{"顧客通知履歴ID":"rec-00004-notif-002","受注案件ID":"rec-00004","通知種別":"納期回答依頼","通知内容":"NC旋盤用チャック部品一式の納期についてご回答いたします。ジョウ部品2種は在庫品のため2026年12月5日、ロックリング1種は仕入先より同日納入予定となります。ご確認のほどよろしくお願いいたします。","送信先メールアドレス":"order@yamada-seimitsu.co.jp","送信日時":"2026-11-21 09:50:00","送信ステータス":"成功","再送回数":0,"開封フラグ":true,"作成日時":"2026-11-21 09:48:00","更新日時":"2026-11-21 14:30:00","作成者":"佐藤美咲"}],"ユーザー":[{"ユーザーID":"user-00012","ユーザー名":"suzuki.eiko","メールアドレス":"suzuki.eiko@machineparts-jp.co.jp","パスワードハッシュ":"$2b$12$abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQR","氏名":"鈴木英子","部門":"営業事務部","役割":"営業事務","ステータス":"有効","最終ログイン日時":"2026-11-21 08:30:00","作成日時":"2026-10-22 14:20:00","更新日時":"2026-11-21 08:30:00","作成者":"user-00001","更新者":"user-00012"},{"ユーザーID":"user-00008","ユーザー名":"suzuki.ayumi","メールアドレス":"suzuki.ayumi@eijitsu-parts.co.jp","パスワードハッシュ":"$2b$12$7kL9mN2pQr5vX8wZ3jK4Hu9sT6yU2vW1xY0aB3cD4eF5gH6iJ7kL8m","氏名":"鈴木歩美","部門":"営業事務","役割":"営業事務","ステータス":"有効","最終ログイン日時":"2026-11-21 08:30:00","作成日時":"2026-11-19 09:00:00","更新日時":"2026-11-21 14:20:00","作成者":"user-00001","更新者":"user-00001"},{"ユーザーID":"user-00015","ユーザー名":"suzuki.hanako","メールアドレス":"suzuki.hanako@eigyo-jimu.co.jp","パスワードハッシュ":"$2b$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcg7b3XeKeUxWdeS86E36P4/1Ea","氏名":"鈴木花子","部門":"営業事務","役割":"営業事務","ステータス":"有効","最終ログイン日時":"2026-11-21 08:30:00","作成日時":"2026-10-07 09:00:00","更新日時":"2026-11-21 08:30:00","作成者":"user-00001","更新者":"user-00015"},{"ユーザーID":"user-00008","ユーザー名":"suzuki.kaori","メールアドレス":"suzuki.kaori@eigyo.co.jp","パスワードハッシュ":"$2b$12$abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQ","氏名":"鈴木香織","部門":"営業事務","役割":"営業事務","ステータス":"有効","最終ログイン日時":"2026-11-21 14:35:00","作成日時":"2026-10-07 08:00:00","更新日時":"2026-11-21 14:35:00","作成者":"user-00099","更新者":"user-00099"},{"ユーザーID":"user-00008","ユーザー名":"suzuki.noriko","メールアドレス":"suzuki.noriko@machineparts-corp.jp","パスワードハッシュ":"$2b$12$abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRST","氏名":"鈴木紀子","部門":"営業事務部","役割":"営業事務","ステータス":"有効","最終ログイン日時":"2026-11-21 08:30:00","作成日時":"2026-10-22 14:20:00","更新日時":"2026-11-21 08:30:00","作成者":"user-00001","更新者":"user-00008"},{"ユーザーID":"user-00008","ユーザー名":"suzuki.takeshi","メールアドレス":"suzuki.takeshi@machineparts-wholesale.jp","パスワードハッシュ":"$2b$12$8kL9mN2pQrStUvWxYzAbCdEfGhIjKlMnOpQrStUvWxYzAbCdEfGh","氏名":"鈴木武志","部門":"営業部","役割":"営業担当","ステータス":"有効","最終ログイン日時":"2026-11-21 14:35:00","作成日時":"2026-10-22 14:20:00","更新日時":"2026-11-21 14:35:00","作成者":"user-00002","更新者":"user-00002"},{"ユーザーID":"user-00007","ユーザー名":"sasaki.eiji","メールアドレス":"sasaki.eiji@example.co.jp","パスワードハッシュ":"$2b$12$abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQR","氏名":"佐々木英二","部門":"営業部","役割":"営業","ステータス":"有効","最終ログイン日時":"2026-11-21 08:30:00","作成日時":"2026-10-22 14:20:00","更新日時":"2026-11-21 08:30:00","作成者":"user-00001","更新者":"user-00007"},{"ユーザーID":"user-00008","ユーザー名":"suzuki.eiji","メールアドレス":"suzuki.eiji@machineparts-wholesale.jp","パスワードハッシュ":"$2b$12$abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOP","氏名":"鈴木英二","部門":"営業事務","役割":"営業事務","ステータス":"有効","最終ログイン日時":"2026-11-21 08:30:00","作成日時":"2026-10-07 14:20:00","更新日時":"2026-11-21 08:30:00","作成者":"user-00001","更新者":"user-00008"},{"ユーザーID":"user-00014","ユーザー名":"suzuki.sachiko","メールアドレス":"suzuki.sachiko@company.jp","パスワードハッシュ":"$2b$12$abcdefghijklmnopqrstuvwxyz1234567890","氏名":"鈴木幸子","部門":"営業事務","役割":"営業事務","ステータス":"有効","最終ログイン日時":"2026-11-21 08:30:00","作成日時":"2026-10-07 09:00:00","更新日時":"2026-11-21 14:45:00","作成者":"user-00002","更新者":"user-00002"},{"ユーザーID":"user-00016","ユーザー名":"suzuki.takeshi","メールアドレス":"suzuki.takeshi@company.co.jp","パスワードハッシュ":"$2b$12$abcdefghijklmnopqrstuvwxyz1234567890ABCD","氏名":"鈴木武志","部門":"倉庫","役割":"倉�exodus担当","ステータス":"有効","最終ログイン日時":"2026-11-21 08:30:00","作成日時":"2026-10-07 14:20:00","更新日時":"2026-11-21 08:30:00","作成者":"user-00001","更新者":"user-00016"}],"ユーザー権限":[{"権限ID":"rec-00847","ユーザーID":"user-00012","権限コード":"credit_limit_confirmation","権限名":"与信限度額確認・高額案件承認","説明":"大口顧客による定期発注時の与信限度額確認、高額案件（200万円以上）の与信承認権限。毎月定期発注案件の与信状況を確認し、限度額内での承認判定を行う。","有効フラグ":true,"作成日時":"2026-11-19 10:15:00","更新日時":"2026-11-21 09:45:00","作成者":"user-00001","更新者":"user-00001"},{"権限ID":"rec-00001","ユーザーID":"user-00008","権限コード":"prepayment_confirmation","権限名":"新規取引先前金確認権","説明":"新規取引先からの初回注文時に前金入金を確認し、出荷指示を判断する権限","有効フラグ":true,"作成日時":"2026-11-19 10:45:00","更新日時":"2026-11-21 14:20:00","作成者":"user-00012","更新者":"user-00012"},{"権限ID":"rec-00002","ユーザーID":"user-00015","権限コード":"shipment_instruction","権限名":"出荷指示・実行権","説明":"倉庫担当者が出荷指示に基づいて商品を梱包・発送し、出荷完了を記録する権限。在庫確認から送り状作成まで一連の出荷業務を実行できます。","有効フラグ":true,"作成日時":"2026-11-20 16:45:00","更新日時":"2026-11-20 16:45:00","作成者":"user-00001","更新者":"user-00001"},{"権限ID":"rec-00003","ユーザーID":"user-00008","権限コード":"delivery_delay_notification","権限名":"納期遅延通知権","説明":"仕入先の納期遅延により、お客様への遅延通知を作成・送信する権限。案件REC-2026-11-0003のような遅延案件の顧客対応を担当。","有効フラグ":true,"作成日時":"2026-11-20 14:45:00","更新日時":"2026-11-21 09:30:00","作成者":"user-00012","更新者":"user-00012"},{"権限ID":"rec-00004","ユーザーID":"user-00008","権限コード":"delivery_date_response","権限名":"納期回答権限","説明":"仕入先からの納期確認を受けて、顧客に対して納期を回答する権限。複数部品の一部在庫あり・一部手配中の案件において、納期確認済みの状態で納期回答を実施可能。","有効フラグ":true,"作成日時":"2026-11-14 10:15:00","更新日時":"2026-11-21 09:45:00","作成者":"user-00012","更新者":"user-00012"},{"権限ID":"rec-00847","ユーザーID":"user-00008","権限コード":"discount_approval_high","権限名":"高額値引き承認権","説明":"受注金額が100万円以上の案件における15%以上の値引き申請を承認する権限。納期短縮対応時の値引き交渉に対応。","有効フラグ":true,"作成日時":"2026-11-21 09:30:00","更新日時":"2026-11-21 14:35:00","作成者":"user-00001","更新者":"user-00001"},{"権限ID":"rec-00001","ユーザーID":"user-00009","権限コード":"high_quote_approval","権限名":"高額見積確認","説明":"見積金額が200万円以上の案件について、営業担当の見積内容を確認し、妥当性を判断する権限。顧客信用度、市場価格、利益率等を総合的に評価し、見積提出の可否を決定する。","有効フラグ":true,"作成日時":"2026-11-14 08:30:00","更新日時":"2026-11-21 09:00:00","作成者":"user-00001","更新者":"user-00001"},{"権限ID":"rec-00001","ユーザーID":"user-00008","権限コード":"quotation_creation","権限名":"見積作成・提出","説明":"営業担当が顧客から受け取った見積依頼に対して、見積書を作成し顧客に提出する権限。Excelテンプレートを使用した見積書作成、メール・FAXでの提出が対象。","有効フラグ":true,"作成日時":"2026-11-21 09:30:00","更新日時":"2026-11-21 09:30:00","作成者":"user-00001","更新者":"user-00001"},{"権限ID":"rec-00847","ユーザーID":"user-00008","権限コード":"discount_approval_standard","権限名":"値引き承認","説明":"受注案件における値引き交渉時の承認権限。標準値引き率（5%～15%）の範囲内での承認を行う。15%を超える値引きは部長承認が必要。","有効フラグ":true,"作成日時":"2026-11-19 08:30:00","更新日時":"2026-11-21 09:45:00","作成者":"user-00001","更新者":"user-00001"},{"権限ID":"rec-00847","ユーザーID":"user-00015","権限コード":"shipment_preparation","権限名":"出荷準備指示","説明":"倉庫から出荷準備中の案件について、出荷準備作業の指示と進捗管理を行う権限。入荷確認済みの商品を梱包・ラベル貼付し、送り状番号を付与して出荷完了まで対応する。","有効フラグ":true,"作成日時":"2026-11-14 14:30:00","更新日時":"2026-11-21 09:45:00","作成者":"user-00001","更新者":"user-00001"}],"操作ログ":[{"操作ログID":"log-rec-00847-001","ユーザーID":"user-00012","操作種別":"承認","対象テーブル名":"受注案件","対象レコードID":"rec-00847","操作内容":"案件番号PO-2026-11-0847の与信確認。顧客cust-00156の与信限度額5,000,000円に対し、現在の利用額2,100,000円。本案件2,850,000円を加算すると4,950,000円となり、限度額内で承認可能と判定。","操作結果":"成功","エラーメッセージ":null,"IPアドレス":"192.168.1.45","セッションID":"sess-20261121-09h-u12","操作日時":"2026-11-21 09:45:00"},{"操作ログID":"log-rec-00001-001","ユーザーID":"user-00008","操作種別":"更新","対象テーブル名":"受注案件","対象レコードID":"rec-00001","操作内容":"案件ステータスを「新規取引先前金待ち」に更新。山田精密工業からの初回注文ORD-2026-11-0001について、与信確認完了後、前金385,000円の入金を待機中。","操作結果":"成功","エラーメッセージ":null,"IPアドレス":"192.168.1.45","セッションID":"sess-20261121-08a3f7","操作日時":"2026-11-21 14:20:00"},{"操作ログID":"log-rec-00002-001","ユーザーID":"user-00015","操作種別":"更新","対象テーブル名":"受注案件","対象レコードID":"rec-00002","操作内容":"案件REC-2026-11-0002のステータスを「入荷確認済み」から「出荷完了」に更新。出荷日時:2026-11-20 16:30、送り状番号:SHP-2026-11-0847、配送先:株式会社田中工業 横浜工場","操作結果":"成功","エラーメッセージ":null,"IPアドレス":"192.168.10.45","セッションID":"sess-20261120-warehouse02","操作日時":"2026-11-20 16:45:00"},{"操作ログID":"log-rec-00003-001","ユーザーID":"user-00008","操作種別":"更新","対象テーブル名":"受注案件","対象レコードID":"rec-00003","操作内容":"案件REC-2026-11-0003のステータスを「納期回答待ち」から「納期遅延通知待ち」に変更。仕入先からの遅延通知を待機中。仕入先納期確認日時: 2026-11-20 14:30、予想遅延日数: 5日間","操作結果":"成功","エラーメッセージ":null,"IPアドレス":"192.168.1.45","セッションID":"sess-20261121-09a8d7","操作日時":"2026-11-21 14:45:00"},{"操作ログID":"log-rec-00004-001","ユーザーID":"user-00012","操作種別":"更新","対象テーブル名":"受注案件","対象レコードID":"rec-00004","操作内容":"案件RO-2026-11-0004の納期確認完了。ステータス「納期回答済み」に更新。在庫品2種類12月2日到着確認、仕入先手配品12月4日到着予定で顧客へ12月5日納期回答済み。","操作結果":"成功","エラーメッセージ":null,"IPアドレス":"192.168.1.45","セッションID":"sess-20261121-09450012","操作日時":"2026-11-21 09:45:00"},{"操作ログID":"log-rec-00005-001","ユーザーID":"user-00008","操作種別":"承認","対象テーブル名":"受注案件","対象レコードID":"rec-00005","操作内容":"案件ORD-2026-11-0005の値引き承認を課長に申請。精密ボールベアリング1000個、納期短縮10日間対応に伴う値引き率15%（277.5万円→235.75万円）の承認を要求。","操作結果":"成功","エラーメッセージ":null,"IPアドレス":"192.168.1.24","セッションID":"sess-20261121-089234","操作日時":"2026-11-21 14:30:00"},{"操作ログID":"log-rec-00006-001","ユーザーID":"user-00008","操作種別":"確認","対象テーブル名":"受注案件","対象レコードID":"rec-00006","操作内容":"高額見積案件 RFQ-2026-11-0006（プレス機用油圧シリンダ50本+制御弁セット、見積金額2,850,000円）を課長確認用に表示。営業担当emp-00007が作成した見積内容、納期、値引き条件を確認。","操作結果":"成功","エラーメッセージ":null,"IPアドレス":"192.168.1.45","セッションID":"sess-20261121-08a4f2","操作日時":"2026-11-21 11:28:00"},{"操作ログID":"log-rec-00847-002","ユーザーID":"user-00012","操作種別":"参照","対象テーブル名":"受注案件","対象レコードID":"rec-00847","操作内容":"PO-2026-11-0847の与信限度額確認。山田精密工業との11月定期発注案件。与信残高確認後、営業事務へ確認結果を報告予定。","操作結果":"成功","エラーメッセージ":null,"IPアドレス":"192.168.1.45","セッションID":"sess-20261121-084532","操作日時":"2026-11-21 08:45:32"},{"操作ログID":"log-rec-00002-002","ユーザーID":"user-00014","操作種別":"参照","対象テーブル名":"受注案件","対象レコードID":"rec-00002","操作内容":"返品申請案件 REC-2026-11-0002 の詳細確認。顧客 cust-00847 からの返品申請理由、納入日、受領書、現在の返品ステータスを確認中。","操作結果":"成功","エラーメッセージ":null,"IPアドレス":"192.168.1.45","セッションID":"sess-a7f3k2m9-n1p4-q6r8","操作日時":"2026-11-21 14:35:00"},{"操作ログID":"log-rec-00847-003","ユーザーID":"user-00012","操作種別":"更新","対象テーブル名":"受注案件","対象レコードID":"rec-00847","操作内容":"案件PO-2026-11-0847のステータスを「与信確認待ち」から「キャンセル手配済み」に変更。仕入先への手配取消手続きを完了。仕入先コード SUP-00023 に対して手配取消メール送信済み。","操作結果":"成功","エラーメッセージ":null,"IPアドレス":"192.168.1.45","セッションID":"sess-20261121-08475932","操作日時":"2026-11-21 14:35:00"}]};
+window.AIVIC_PAGE_SCREEN_ID = "scr-1795254613607";
+window.AIVIC_PAGE_INIT_JS = "function(container, apiUrl, tables) {\n  let allProjects = [];\n  let selectedProjectId = null;\n  const stoppedStates = ['値引き承認待ち', '高額見積確認待ち', '与信確認待ち', '新規取引先前金待ち', '納期遅延通知待ち', '受領書催促中'];\n\n  async function loadProjects() {\n    try {\n      const projects = await window.aivicApi.list(0);\n      allProjects = projects || [];\n      applyFilters();\n    } catch (e) {\n      console.error('Failed to load projects:', e);\n    }\n  }\n\n  function applyFilters() {\n    const statusFilter = container.querySelector('#status-filter').value;\n    const priorityFilter = container.querySelector('#priority-filter').value;\n\n    let filtered = allProjects.filter(p => {\n      const matchStatus = !statusFilter || (stoppedStates.includes(p.status || '') ? '停止' : (p.status || '受注')) === statusFilter;\n      const matchPriority = !priorityFilter || (p.priority || '中') === priorityFilter;\n      return matchStatus && matchPriority;\n    });\n\n    renderTable(filtered);\n  }\n\n  function renderTable(projects) {\n    const tbody = container.querySelector('#projects-tbody');\n    tbody.innerHTML = projects.map(p => {\n      return `<tr onclick=\"showDetail('${p.id || p.projectNo}')\">` +\n        `<td>${p.projectNo || '-'}</td>` +\n        `<td>${p.customerName || '-'}</td>` +\n        `<td>${new Date(p.orderDate || 0).toLocaleDateString('ja-JP')}</td>` +\n        `<td><span class=\"state-badge\" data-state=\"${p.status || '受注'}\">${stoppedStates.includes(p.status || '') ? '停止' : p.status || '受注'}</span></td>` +\n        `<td>${p.priority || '中'}</td>` +\n        `</tr>`;\n    }).join('');\n  }\n\n  window.showDetail = function(projectId) {\n    const project = allProjects.find(p => p.id === projectId || p.projectNo === projectId);\n    if (!project) return;\n    selectedProjectId = project.id || project.projectNo;\n\n    const quoteDate = project.quoteDate ? new Date(project.quoteDate).toISOString().split('T')[0] : '';\n    container.querySelector('#quote-date').value = quoteDate;\n    container.querySelector('#quote-amount').value = project.quoteAmount || 0;\n\n    const expiryDate = quoteDate ? new Date(new Date(quoteDate).getTime() + 14 * 24 * 60 * 60 * 1000).toLocaleDateString('ja-JP') : '-';\n    container.querySelector('#quote-expiry').value = expiryDate;\n\n    if (quoteDate) {\n      const now = new Date();\n      const expiry = new Date(new Date(quoteDate).getTime() + 14 * 24 * 60 * 60 * 1000);\n      const sevenDaysAgo = new Date(expiry.getTime() - 7 * 24 * 60 * 60 * 1000);\n      if (now > sevenDaysAgo && now < expiry) {\n        const warning = container.querySelector('#quote-warning');\n        warning.textContent = '⚠️ 有効期限切迫（7日以内）';\n        warning.classList.remove('hidden');\n      } else {\n        container.querySelector('#quote-warning').classList.add('hidden');\n      }\n    }\n\n    const deadline = new Date(project.deadline || 0).toLocaleDateString('ja-JP');\n    container.querySelector('#deadline').value = deadline;\n    container.querySelector('#answer-status').value = project.answerStatus || '';\n    const answerDate = project.answerDate ? new Date(project.answerDate).toISOString().slice(0, 16) : '';\n    container.querySelector('#answer-date').value = answerDate;\n    container.querySelector('#answer-content').value = project.answerContent || '';\n\n    const historyList = container.querySelector('#history-list');\n    historyList.innerHTML = '<div class=\\\"history-item\\\">提出日: ' + expiryDate + ' | 金額: <span class=\\\"history-amount\\\">¥' + (project.quoteAmount || 0).toLocaleString('ja-JP') + '</span></div>';\n\n    container.querySelector('#detail-section').classList.remove('hidden');\n  };\n\n  window.closeDetailPanel = function() {\n    container.querySelector('#detail-section').classList.add('hidden');\n    selectedProjectId = null;\n  };\n\n  window.saveAnswer = async function() {\n    const answerStatus = container.querySelector('#answer-status').value;\n    const answerDate = container.querySelector('#answer-date').value;\n    const answerContent = container.querySelector('#answer-content').value;\n    try {\n      await window.aivicApi.update(0, selectedProjectId, {\n        answerStatus: answerStatus,\n        answerDate: answerDate,\n        answerContent: answerContent\n      });\n      alert('納期回答が保存されました');\n      loadProjects();\n      window.closeDetailPanel();\n    } catch (e) {\n      console.error('Failed to save answer:', e);\n    }\n  };\n\n  container.querySelector('#status-filter').addEventListener('change', applyFilters);\n  container.querySelector('#priority-filter').addEventListener('change', applyFilters);\n  container.querySelector('#quote-date').addEventListener('change', () => {\n    const quoteDate = container.querySelector('#quote-date').value;\n    if (quoteDate) {\n      const expiry = new Date(new Date(quoteDate).getTime() + 14 * 24 * 60 * 60 * 1000).toLocaleDateString('ja-JP');\n      container.querySelector('#quote-expiry').value = expiry;\n    }\n  });\n  container.addEventListener('keydown', e => { if (e.key === 'Escape') window.closeDetailPanel(); });\n\n  loadProjects();\n}";
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div data-aivic-shell-pattern="sidebar" data-aivic-nav-position="left" data-aivic-density="balanced">
+    <header class="shell-header">
+      <a href="#" class="shell-logo">
+        <div class="shell-logo-icon">📦</div>
+        <div class="shell-logo-text">
+          <span class="shell-logo-brand">ほくしん受注ナビ</span>
+          <span class="shell-logo-system">受注管理</span>
+        </div>
+      </a>
+      <div class="shell-user-area">
+        <div class="shell-user-avatar">U</div>
+        <span class="shell-user-name">ユーザー</span>
+        <a href="./login.html" class="shell-logout">ログアウト</a>
+      </div>
+    </header>
+
+    <div class="shell-container">
+      <aside class="shell-sidebar">
+        <nav class="shell-nav">
+          <a data-aivic-nav="scr-1795254591892" class="shell-nav-item aivic-active" href="./scr-1795254591892.html">
+            <span class="shell-nav-icon">📊</span>
+            <span>ダッシュボード</span>
+          </a>
+          <a data-aivic-nav="scr-1795254601981" class="shell-nav-item" href="./scr-1795254601981.html">
+            <span class="shell-nav-icon">📋</span>
+            <span>案件管理</span>
+          </a>
+          <a data-aivic-nav="scr-1795254613607" class="shell-nav-item" href="./scr-1795254613607.html">
+            <span class="shell-nav-icon">💰</span>
+            <span>見積・納期</span>
+          </a>
+          <a data-aivic-nav="scr-1795254624792" class="shell-nav-item" href="./scr-1795254624792.html">
+            <span class="shell-nav-icon">📦</span>
+            <span>入荷・出荷</span>
+          </a>
+          <a data-aivic-nav="scr-1795254635972" class="shell-nav-item" href="./scr-1795254635972.html">
+            <span class="shell-nav-icon">📱</span>
+            <span>モバイル照会</span>
+          </a>
+        </nav>
+      </aside>
+
+      <div class="shell-content-wrapper">
+        <main class="content-area">
+          <div data-aivic-panel="scr-1795254591892" style="display:none"></div>
+          <div data-aivic-panel="scr-1795254601981" style="display:none"></div>
+          <div data-aivic-panel="scr-1795254613607" style="display:block">
+  <style>
+    [data-aivic-panel="scr-1795254613607"] {
+      background: var(--bg-main);
+      color: var(--text);
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .state-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      line-height: 1.6;
+      white-space: nowrap;
+      border: 1px solid currentColor;
+    }
+    .state-badge[data-state="見積依頼受付"] { color: hsl(210 62% 46%); background: color-mix(in srgb, hsl(210 62% 46%) 14%, transparent); }
+    .state-badge[data-state="見積作成中"] { color: hsl(38 62% 46%); background: color-mix(in srgb, hsl(38 62% 46%) 14%, transparent); }
+    .state-badge[data-state="値引き承認待ち"] { color: hsl(142 62% 46%); background: color-mix(in srgb, hsl(142 62% 46%) 14%, transparent); }
+    .state-badge[data-state="高額見積確認待ち"] { color: hsl(280 62% 46%); background: color-mix(in srgb, hsl(280 62% 46%) 14%, transparent); }
+    .state-badge[data-state="見積提出済み"] { color: hsl(18 62% 46%); background: color-mix(in srgb, hsl(18 62% 46%) 14%, transparent); }
+    .state-badge[data-state="見積フォロー待ち"] { color: hsl(188 62% 46%); background: color-mix(in srgb, hsl(188 62% 46%) 14%, transparent); }
+    .state-badge[data-state="見積有効期限切れ"] { color: hsl(330 62% 46%); background: color-mix(in srgb, hsl(330 62% 46%) 14%, transparent); }
+    .state-badge[data-state="受注確定"] { color: hsl(78 62% 46%); background: color-mix(in srgb, hsl(78 62% 46%) 14%, transparent); }
+    .state-badge[data-state="与信確認待ち"] { color: hsl(255 62% 46%); background: color-mix(in srgb, hsl(255 62% 46%) 14%, transparent); }
+    .state-badge[data-state="新規取引先前金待ち"] { color: hsl(0 62% 46%); background: color-mix(in srgb, hsl(0 62% 46%) 14%, transparent); }
+    .state-badge[data-state="手配準備中"] { color: hsl(210 62% 46%); background: color-mix(in srgb, hsl(210 62% 46%) 14%, transparent); }
+    .state-badge[data-state="仕入先手配済み"] { color: hsl(38 62% 46%); background: color-mix(in srgb, hsl(38 62% 46%) 14%, transparent); }
+    .state-badge[data-state="納期回答待ち"] { color: hsl(142 62% 46%); background: color-mix(in srgb, hsl(142 62% 46%) 14%, transparent); }
+    .state-badge[data-state="納期回答済み"] { color: hsl(280 62% 46%); background: color-mix(in srgb, hsl(280 62% 46%) 14%, transparent); }
+    .state-badge[data-state="納期遅延通知待ち"] { color: hsl(18 62% 46%); background: color-mix(in srgb, hsl(18 62% 46%) 14%, transparent); }
+    .state-badge[data-state="納期遅延通知済み"] { color: hsl(188 62% 46%); background: color-mix(in srgb, hsl(188 62% 46%) 14%, transparent); }
+    .state-badge[data-state="入荷待ち"] { color: hsl(330 62% 46%); background: color-mix(in srgb, hsl(330 62% 46%) 14%, transparent); }
+    .state-badge[data-state="入荷確認済み"] { color: hsl(78 62% 46%); background: color-mix(in srgb, hsl(78 62% 46%) 14%, transparent); }
+    .state-badge[data-state="出荷準備中"] { color: hsl(255 62% 46%); background: color-mix(in srgb, hsl(255 62% 46%) 14%, transparent); }
+    .state-badge[data-state="出荷完了"] { color: hsl(0 62% 46%); background: color-mix(in srgb, hsl(0 62% 46%) 14%, transparent); }
+    .state-badge[data-state="受領書���収待ち"] { color: hsl(210 62% 46%); background: color-mix(in srgb, hsl(210 62% 46%) 14%, transparent); }
+    .state-badge[data-state="受領書催促中"] { color: hsl(38 62% 46%); background: color-mix(in srgb, hsl(38 62% 46%) 14%, transparent); }
+    .state-badge[data-state="受領書回収済み"] { color: hsl(142 62% 46%); background: color-mix(in srgb, hsl(142 62% 46%) 14%, transparent); }
+    .state-badge[data-state="キャンセル受付"] { color: hsl(280 62% 46%); background: color-mix(in srgb, hsl(280 62% 46%) 14%, transparent); }
+    .state-badge[data-state="キャンセル手配済み"] { color: hsl(18 62% 46%); background: color-mix(in srgb, hsl(18 62% 46%) 14%, transparent); }
+    .state-badge[data-state="返品受付検討中"] { color: hsl(188 62% 46%); background: color-mix(in srgb, hsl(188 62% 46%) 14%, transparent); }
+    .state-badge[data-state="返品受付済み"] { color: hsl(330 62% 46%); background: color-mix(in srgb, hsl(330 62% 46%) 14%, transparent); }
+    .state-badge[data-state="返品不受付"] { color: hsl(78 62% 46%); background: color-mix(in srgb, hsl(78 62% 46%) 14%, transparent); }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      padding: 16px;
+      background: var(--bg-main);
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .controls select {
+      padding: 8px 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    .controls select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.1);
+    }
+
+    .main-content {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .list-section {
+      flex: 1;
+      overflow-y: auto;
+      border-right: 1px solid var(--border);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 12px 8px;
+      text-align: left;
+      font-weight: 600;
+      color: var(--text);
+      position: sticky;
+      top: 0;
+    }
+
+    td {
+      border: 1px solid var(--border);
+      padding: 12px 8px;
+      color: var(--text);
+    }
+
+    tr {
+      background: var(--bg-card);
+      cursor: pointer;
+    }
+
+    tr:hover {
+      background: rgba(44, 62, 80, 0.3);
+    }
+
+    .detail-section {
+      flex: 0 0 420px;
+      overflow-y: auto;
+      padding: 16px;
+      background: var(--bg-card);
+    }
+
+    .detail-section.hidden {
+      display: none;
+    }
+
+    .form-section {
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .form-section:last-child {
+      border-bottom: none;
+    }
+
+    .form-section-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .detail-field {
+      margin-bottom: 12px;
+    }
+
+    .detail-field label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .detail-field input, .detail-field select, .detail-field textarea {
+      width: 100%;
+      padding: 8px 12px;
+      background: var(--bg-main);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      font-size: 13px;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+
+    .detail-field input:focus, .detail-field select:focus, .detail-field textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.1);
+    }
+
+    .warning-text {
+      color: var(--accent-warning);
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 10px 16px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .btn:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn.secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn.secondary:hover {
+      background: rgba(44, 62, 80, 0.2);
+    }
+
+    .history-item {
+      background: var(--bg-main);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 8px;
+      margin-bottom: 8px;
+      font-size: 12px;
+    }
+
+    .history-date {
+      color: var(--text-muted);
+      font-size: 11px;
+    }
+
+    .history-amount {
+      color: var(--accent-success);
+      font-weight: 600;
+    }
+  </style>
+
+  <div class="controls">
+    <select id="status-filter" data-testid="status-filter">
+      <option value="">すべてのステータス</option>
+      <option value="受注">受注</option>
+      <option value="進行中">進行中</option>
+      <option value="完了">完了</option>
+      <option value="停止">停止</option>
+    </select>
+    <select id="priority-filter" data-testid="priority-filter">
+      <option value="">すべての優先度</option>
+      <option value="緊急">緊急</option>
+      <option value="高">高</option>
+      <option value="中">中</option>
+      <option value="低">低</option>
+    </select>
+  </div>
+
+  <div class="main-content">
+    <div class="list-section">
+      <table data-testid="projects-table">
+        <thead>
+          <tr>
+            <th>案件番号</th>
+            <th>顧客名</th>
+            <th>受注日</th>
+            <th>ステータス</th>
+            <th>優先度</th>
+          </tr>
+        </thead>
+        <tbody id="projects-tbody">
+        </tbody>
+      </table>
+    </div>
+
+    <div class="detail-section hidden" id="detail-section">
+      <div class="form-section">
+        <h3 style="margin: 0 0 12px 0; font-size: 14px;">見積情報</h3>
+        <div class="detail-field">
+          <label>見積提出日</label>
+          <input type="date" id="quote-date" data-testid="quote-date">
+        </div>
+        <div class="detail-field">
+          <label>見積金額</label>
+          <input type="number" id="quote-amount" data-testid="quote-amount" placeholder="0">
+        </div>
+        <div class="detail-field">
+          <label>見積有効期限</label>
+          <input type="text" id="quote-expiry" readonly>
+          <div id="quote-warning" class="warning-text hidden"></div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3 style="margin: 0 0 12px 0; font-size: 14px;">納期回答</h3>
+        <div class="detail-field">
+          <label>納期回答期限</label>
+          <input type="text" id="deadline" readonly>
+        </div>
+        <div class="detail-field">
+          <label>回答状況</label>
+          <select id="answer-status" data-testid="answer-status">
+            <option value="">選択してください</option>
+            <option value="待ち中">待ち中</option>
+            <option value="回答済み">回答済み</option>
+          </select>
+        </div>
+        <div class="detail-field">
+          <label>実回答日時</label>
+          <input type="datetime-local" id="answer-date" data-testid="answer-date">
+        </div>
+        <div class="detail-field">
+          <label>回答内容</label>
+          <input type="text" id="answer-content" data-testid="answer-content" placeholder="納期回答内容">
+        </div>
+        <div class="button-group">
+          <button class="btn" id="save-answer-btn" data-testid="save-answer-btn" onclick="saveAnswer()">保存</button>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3 style="margin: 0 0 12px 0; font-size: 14px;">見積提出履歴</h3>
+        <div id="history-list"></div>
+      </div>
+
+      <div class="button-group">
+        <button class="btn secondary" onclick="closeDetailPanel()">閉じる</button>
+      </div>
+    </div>
+  </div>
+</div>
+          <div data-aivic-panel="scr-1795254624792" style="display:none"></div>
+          <div data-aivic-panel="scr-1795254635972" style="display:none"></div>
+        </main>
+      </div>
+    </div>
+
+    <footer class="shell-footer">
+      © 2024 ほくしん受注ナビ
+    </footer>
+  </div>
+
+  
+<script>
+(function() {
+  var TABLE_DEFS = window.AIVIC_TABLES || [];
+  var PRESET_SEED = window.AIVIC_PRESET_SEED || {};
+  var SYSTEM_NAME = window.AIVIC_SYSTEM_NAME || "";
+  var APP_ID = window.AIVIC_APP_ID || "";
+  var API_URL = (window.AIVIC_API_URL && window.AIVIC_API_URL !== "REPLACE_WITH_API_URL")
+    ? window.AIVIC_API_URL : window.location.origin;
+
+  // 通知 helper ( SPA 版と同じ )
+  window.aivicNotify = (function() {
+    function ensureContainer() {
+      var c = document.getElementById("aivic-toast-container");
+      if (c) return c;
+      c = document.createElement("div");
+      c.id = "aivic-toast-container";
+      c.style.cssText = "position:fixed;top:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;max-width:360px;";
+      document.body.appendChild(c);
+      return c;
+    }
+    function show(msg, type) {
+      var c = ensureContainer();
+      var el = document.createElement("div");
+      el.textContent = msg;
+      el.style.cssText = "padding:10px 16px;border-radius:8px;font-size:13px;line-height:1.4;pointer-events:auto;color:#fff;background:" + (type === "error" ? "#dc2626" : "#d97706");
+      c.appendChild(el);
+      setTimeout(function() {
+        el.style.transition = "opacity .3s";
+        el.style.opacity = "0";
+        setTimeout(function() { if (el.parentNode) el.parentNode.removeChild(el); }, 320);
+      }, type === "error" ? 6000 : 4500);
+    }
+    return {
+      error: function(msg) { show("❌ " + msg, "error"); },
+      warn:  function(msg) { show("⚠️ " + msg, "warn"); },
+    };
+  })();
+
+  // CRUD API ( SPA 版と同じ )
+  window.aivicApi = (function() {
+    function dbErr(op) { window.aivicNotify.error("データベースエラー ( " + op + " ): APIサーバーに接続できません。"); }
+    function newId() { return typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : "id-" + Date.now() + "-" + Math.random().toString(36).slice(2); }
+    function q(i) {
+      var t = TABLE_DEFS[i];
+      var dbP = (window.AIVIC_DB_TYPE && window.AIVIC_DB_TYPE !== "dynamodb") ? "&db=" + encodeURIComponent(window.AIVIC_DB_TYPE) : "";
+      return "?app=" + encodeURIComponent(APP_ID) + "&system=" + encodeURIComponent(SYSTEM_NAME) + "&table=" + encodeURIComponent(t ? t.tableName : "table" + i) + dbP;
+    }
+    return {
+      list: async function(tableIndex) {
+        if (!API_URL) return [];
+        try { var r = await fetch(API_URL + "/api/" + tableIndex + q(tableIndex)); var d = await r.json(); return Array.isArray(d) ? d : (d.items || []); }
+        catch(e) { dbErr("データ取得"); return []; }
+      },
+      save: async function(tableIndex, item) {
+        if (!API_URL) { dbErr("保存"); return null; }
+        var now = new Date().toISOString();
+        var rec = Object.assign({}, item, { id: item.id || newId(), createdAt: item.createdAt || now, updatedAt: now });
+        try { var r = await fetch(API_URL + "/api/" + tableIndex + q(tableIndex), { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(rec) }); return await r.json(); }
+        catch(e) { dbErr("保存"); return null; }
+      },
+      update: async function(tableIndex, id, changes) {
+        if (!API_URL) { dbErr("更新"); return null; }
+        try { var r = await fetch(API_URL + "/api/" + tableIndex + "/" + id + q(tableIndex), { method:"PUT", headers:{"Content-Type":"application/json"}, body:JSON.stringify(Object.assign({}, changes, {updatedAt: new Date().toISOString()})) }); return await r.json(); }
+        catch(e) { dbErr("更新"); return null; }
+      },
+      delete: async function(tableIndex, id) {
+        if (!API_URL) { dbErr("削除"); return {deleted:false}; }
+        try { await fetch(API_URL + "/api/" + tableIndex + "/" + id + q(tableIndex), {method:"DELETE"}); return {deleted:true}; }
+        catch(e) { dbErr("削除"); return {deleted:false}; }
+      },
+    };
+  })();
+
+  // showScreen はマルチページ構成ではページ遷移として動く。
+  var _aivicNavLastTime = 0;
+  var _aivicNavLastTarget = "";
+  var _aivicReady = false;
+  window.showScreen = function(screenId) {
+    if (!screenId) return;
+    if (screenId === window.AIVIC_PAGE_SCREEN_ID) return;
+    var targetPath = './' + encodeURIComponent(screenId) + '.html';
+    var currentName = (window.location.pathname.split('/').pop() || '');
+    if (currentName === (encodeURIComponent(screenId) + '.html') ||
+        currentName === (screenId + '.html')) {
+      return;
+    }
+    var now = Date.now();
+    if (_aivicNavLastTarget === targetPath && (now - _aivicNavLastTime) < 100) {
+      console.warn('[aivic] showScreen 連続呼び出し検知。 無限ループ防止のため抑制:', screenId);
+      return;
+    }
+    if (!_aivicReady) {
+      console.warn('[aivic] DOMContentLoaded 前の showScreen 呼び出し。 抑制:', screenId);
+      return;
+    }
+    _aivicNavLastTime = now;
+    _aivicNavLastTarget = targetPath;
+    window.location.href = targetPath;
+  };
+
+  function seedAllIfEmpty() {
+    if (!API_URL) return Promise.resolve();
+    return Promise.all(TABLE_DEFS.map(function(t, i) {
+      var preset = PRESET_SEED[t.tableName];
+      if (!Array.isArray(preset) || preset.length === 0) return Promise.resolve();
+      return window.aivicApi.list(i).then(function(existing) {
+        if (existing && existing.length > 0) return;
+        return Promise.all(preset.map(function(row) { return window.aivicApi.save(i, row); }));
+      }).catch(function() {});
+    }));
+  }
+
+  // ── 初期表示: このページ専用の panel に initFn を実行 ──
+  document.addEventListener("DOMContentLoaded", function() {
+    setTimeout(function() { _aivicReady = true; }, 1500);
+    var pageScreenId = window.AIVIC_PAGE_SCREEN_ID;
+    if (!pageScreenId) return;
+
+    // AI シェルが SPA 用の初期表示処理を持っていても、マルチページでは
+    // このファイルに割り当てられた画面だけを表示する。
+    document.querySelectorAll('[data-aivic-panel]').forEach(function(panel) {
+      var isCurrent = panel.getAttribute('data-aivic-panel') === pageScreenId;
+      panel.style.display = isCurrent ? 'block' : 'none';
+    });
+
+    document.querySelectorAll('[data-aivic-nav]').forEach(function(btn) {
+      var isActive = btn.getAttribute("data-aivic-nav") === pageScreenId;
+      btn.classList.toggle("aivic-active", isActive);
+      btn.setAttribute("aria-current", isActive ? "page" : "false");
+    });
+
+    var container = document.querySelector('[data-aivic-panel="' + pageScreenId + '"]');
+    if (!container) return;
+
+    // content 要素の hidden 強制除去 ( 2026-05-24 Playwright 大量 fail 対応 )
+    var isModalLike = function(el) {
+      if (!el || !el.classList) return false;
+      var cn = String(el.className || "");
+      if (/\bmodal\b|\bdialog\b|\boverlay\b|\bpopup\b|\bdropdown\b|\btooltip\b/i.test(cn)) return true;
+      var role = el.getAttribute && el.getAttribute("role");
+      if (role === "dialog" || role === "alertdialog" || role === "tooltip" || role === "menu") return true;
+      if (el.hasAttribute && (el.hasAttribute("data-modal") || el.hasAttribute("data-dropdown") || el.hasAttribute("data-popup") || el.hasAttribute("data-aivic-overlay"))) return true;
+      // 【2026-06-25】 class/role が無くても inline で画面を覆う overlay ( position:fixed ) は modal 扱いにして、
+      //  content 強制可視化が誤ってダイアログをロード時に表示してしまわないようにする。
+      if (el.style && el.style.position === "fixed") return true;
+      return false;
+    };
+    var unhideContentElements = function(root) {
+      var all = root.querySelectorAll('.hidden, [hidden], [style*="display:none"], [style*="display: none"]');
+      for (var k = 0; k < all.length; k++) {
+        var el = all[k];
+        if (isModalLike(el)) continue;
+        var p = el.parentElement;
+        var insideModal = false;
+        while (p && p !== root) {
+          if (isModalLike(p)) { insideModal = true; break; }
+          p = p.parentElement;
+        }
+        if (insideModal) continue;
+        el.classList.remove('hidden');
+        el.removeAttribute('hidden');
+        if (el.style && el.style.display === 'none') el.style.display = '';
+      }
+    };
+    try { unhideContentElements(container); } catch (e) { console.warn('[aivic] unhideContent failed:', e); }
+
+    var initJsSource = window.AIVIC_PAGE_INIT_JS;
+    if (!initJsSource) {
+      seedAllIfEmpty();
+      return;
+    }
+    var initFn = null;
+    try {
+      initFn = (new Function("return (" + initJsSource + ")"))();
+    } catch (e) {
+      console.error("[aivic] initJs compile error:", pageScreenId, e);
+      return;
+    }
+    if (typeof initFn !== "function") return;
+
+    seedAllIfEmpty().then(function() {
+      return Promise.all(TABLE_DEFS.map(function(t, i) {
+        return window.aivicApi.list(i)
+          .then(function(records) { return Object.assign({}, t, { records: records }); })
+          .catch(function() { return Object.assign({}, t, { records: [] }); });
+      }));
+    }).then(function(tables) {
+      try { initFn(container, API_URL, tables); } catch (e) { console.error("[aivic] initFn error:", pageScreenId, e); }
+      _aivicReady = true;
+    });
+  });
+
+  // 【2026-06-27 強化・必ず閉じられる保証】 モーダル/ダイアログを確実に閉じる安全網。
+  //  旧版は Esc のみ + セレクタ .overlay が class="modal-overlay" にマッチせず ( クラストークンが別 )
+  //  閉じられなかった ( ユーザー報告 2026-06-27: ダイアログが閉じない ) 。 ① Esc ② オーバーレイ背景クリック
+  //  ③ 閉じる系ボタン の 3 経路で閉じる。 セレクタは複合クラスも拾うよう [class*="overlay"] を含む。
+  //  閉じ方は「開クラス ( active/open/show 等 ) があれば外す ( 再オープン可 ) 、 無ければ inline display:none」。
+  //  modal-header 等の sub-part を誤って隠さないため [class*="modal"] は使わない。
+  var AIVIC_OVERLAY_SELECTOR = '[class*="overlay"],[data-aivic-overlay],[data-modal],[role="dialog"],[role="alertdialog"]';
+  var aivicCloseOverlay = function(el) {
+    if (!el || !el.classList) return;
+    var openClasses = ["active", "open", "show", "visible", "is-open", "is-active", "show-modal"];
+    var removed = false;
+    for (var c = 0; c < openClasses.length; c++) {
+      if (el.classList.contains(openClasses[c])) { el.classList.remove(openClasses[c]); removed = true; }
+    }
+    if (!removed && el.style) el.style.display = "none";
+  };
+  document.addEventListener("keydown", function(e) {
+    if (e.key !== "Escape" && e.keyCode !== 27) return;
+    var ov = document.querySelectorAll(AIVIC_OVERLAY_SELECTOR);
+    for (var i = 0; i < ov.length; i++) aivicCloseOverlay(ov[i]);
+  });
+  document.addEventListener("click", function(e) {
+    var t = e.target;
+    if (!t) return;
+    if (t.closest) {
+      var closer = t.closest('.modal-close,[data-modal-close],[data-close],[data-dismiss]');
+      if (closer) {
+        var oc = closer.closest(AIVIC_OVERLAY_SELECTOR);
+        if (oc) { aivicCloseOverlay(oc); return; }
+      }
+    }
+    // 背景 ( オーバーレイ要素そのもの ) を直接クリックした時のみ閉じる ( モーダル本体クリックでは閉じない ) 。
+    if (t.matches && t.matches(AIVIC_OVERLAY_SELECTOR) && t === e.target) {
+      aivicCloseOverlay(t);
+    }
+  });
+  // 【2026-06-28 強化・ロード時に必ず閉じる】 生成 AI が overlay を初期 display:none にし忘れた場合でも、
+  //  ロード直後にダイアログが画面を覆って操作不能になる事故 ( ユーザー報告 2026-06-28: ダイアログが常に表示され
+  //  閉じられない ) を防ぐ。 認識可能な overlay/dialog セレクタに該当する要素はロード時に必ず閉じる
+  //  ( 開クラス除去 or display:none ) 。 真にロード時表示すべき業務コンテンツは overlay セレクタに該当しないため
+  //  影響しない ( パネルコンテナは data-aivic-panel で別管理 ) 。
+  var aivicHideOverlaysOnLoad = function() {
+    var ov = document.querySelectorAll(AIVIC_OVERLAY_SELECTOR);
+    for (var i = 0; i < ov.length; i++) aivicCloseOverlay(ov[i]);
+  };
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", aivicHideOverlaysOnLoad);
+  } else {
+    aivicHideOverlaysOnLoad();
+  }
+})();
+
+</script>
+</body>
+</html>
